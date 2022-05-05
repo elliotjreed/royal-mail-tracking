@@ -1,0 +1,61 @@
+{
+  "name": "elliotjreed/royal-mail-tracking",
+  "description": "A library for interacting with the Royal Mail tracking service",
+  "keywords": [
+    "elliotjreed",
+    "royal-mail-tracking"
+  ],
+  "license": "MIT",
+  "type": "library",
+  "authors": [
+    {
+      "name": "Elliot J. Reed",
+      "email": "royal-mail-tracking@elliotjreed.com",
+      "homepage": "https://github.com/elliotjreed",
+      "role": "Developer"
+    }
+  ],
+  "homepage": "https://github.com/elliotjreed/royal-mail-tracking",
+  "autoload": {
+    "psr-4": {
+      "ElliotJReed\\": "src/ElliotJReed/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\ElliotJReed\\": "tests/ElliotJReed/"
+    }
+  },
+  "require": {
+    "php": "^8.0",
+    "ext-json": "*",
+    "guzzlehttp/guzzle": "^6.0|^7.0",
+    "symfony/property-access": "^5.0|^6.0",
+    "symfony/serializer": "^5.0|^6.0"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^3.8",
+    "phpunit/phpunit": "^9.5",
+    "roave/security-advisories": "dev-master",
+    "squizlabs/php_codesniffer": "^3.6"
+  },
+  "scripts": {
+    "test": [
+      "@phpunit:coverage",
+      "@phpcs"
+    ],
+    "phpunit": "vendor/bin/phpunit -c phpunit.xml",
+    "phpunit:debug": "vendor/bin/phpunit --stop-on-failure -c phpunit.xml",
+    "phpunit:coverage": "vendor/bin/phpunit -c phpunit.xml --coverage-html ./coverage --coverage-text",
+    "phpunit:ci": "mkdir -p ./build/logs && vendor/bin/phpunit -c phpunit.xml --coverage-text=coverage.txt --coverage-clover ./build/logs/clover.xml",
+    "phpcs": "vendor/bin/php-cs-fixer fix --allow-risky=yes && vendor/bin/phpcs --standard=phpcs.xml",
+    "phpcs:ci": "vendor/bin/php-cs-fixer fix --allow-risky=yes --dry-run && vendor/bin/phpcs --standard=phpcs.xml"
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "preferred-install": {
+      "*": "dist"
+    },
+    "sort-packages": true
+  }
+}
