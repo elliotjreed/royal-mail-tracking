@@ -15,3 +15,5 @@ yarn-error.log
 /.env.local.php
 /.env.*.local
 /run.php
+.phpdoc/cache/
+build/

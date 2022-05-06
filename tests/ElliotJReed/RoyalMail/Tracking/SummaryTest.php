@@ -87,36 +87,10 @@ final class SummaryTest extends TestCase
         $this->assertSame('Royal Mail Group Ltd', $internationalPostalProvider->getTitle());
         $this->assertSame('Royal Mail Group Ltd', $internationalPostalProvider->getDescription());
 
-        $signature = $response->getSignature();
-        $this->assertSame('Simon', $signature->getRecipientName());
-        $this->assertSame('2016-10-20T10:04:00+01:00', $signature->getSignatureDateTime()->format('c'));
-        $this->assertSame('001234', $signature->getImageId());
-
-        $estimatedDelivery = $response->getEstimatedDelivery();
-        $this->assertSame('2017-02-20T00:00:00+00:00', $estimatedDelivery->getDate()->format('c'));
-        $this->assertSame('2017-02-20T08:00:00+01:00', $estimatedDelivery->getStartOfEstimatedWindow()->format('c'));
-        $this->assertSame('2017-02-20T11:00:00+01:00', $estimatedDelivery->getEndOfEstimatedWindow()->format('c'));
-
-        $event = $response->getEvents()[0];
-        $this->assertSame('EVNMI', $event->getEventCode());
-        $this->assertSame('Forwarded - Mis-sort', $event->getEventName());
-        $this->assertSame('2016-10-20T10:04:00+01:00', $event->getEventDateTime()->format('c'));
-        $this->assertSame('Stafford DO', $event->getLocationName());
-
-        $linkSummary = $response->getLinks()->getSummary();
-        $this->assertSame('/mailpieces/v2/summary?mailPieceId=090367574000000FE1E1B', $linkSummary->getHref());
-        $this->assertSame('Summary', $linkSummary->getTitle());
-        $this->assertSame('Get summary', $linkSummary->getDescription());
-
-        $linkSignature = $response->getLinks()->getSignature();
-        $this->assertSame('/mailpieces/v2/090367574000000FE1E1B/signature', $linkSignature->getHref());
-        $this->assertSame('Signature', $linkSignature->getTitle());
-        $this->assertSame('Get signature', $linkSignature->getDescription());
-
-        $linkRedelivery = $response->getLinks()->getRedelivery();
-        $this->assertSame('/personal/receiving-mail/redelivery', $linkRedelivery->getHref());
-        $this->assertSame('Redelivery', $linkRedelivery->getTitle());
-        $this->assertSame('Book a redelivery', $linkRedelivery->getDescription());
+        $events = $response->getLinks()->getEvents();
+        $this->assertSame('/mailpieces/v2/FQ087430672GB/events', $events->getHref());
+        $this->assertSame('Events', $events->getTitle());
+        $this->assertSame('Get events', $events->getDescription());
     }
 
     public function testItReturnsTrackingDataError(): void
@@ -163,42 +137,20 @@ final class SummaryTest extends TestCase
           {
             "carrierFullName": "Royal Mail Group Ltd",
             "carrierShortName": "RM",
-            "estimatedDelivery": {
-              "date": "2017-02-20T00:00:00+00:00",
-              "endOfEstimatedWindow": "2017-02-20T11:00:00+01:00",
-              "startOfEstimatedWindow": "2017-02-20T08:00:00+01:00"
+            "error": {
+              "errorCause": "A mail item with that barcode cannot be located",
+              "errorCode": "E1142",
+              "errorDescription": "Barcode reference mailPieceId isn not recognised",
+              "errorResolution": "Check barcode and resubmit"
             },
-            "events": [
-              {
-                "eventCode": "EVNMI",
-                "eventDateTime": "2016-10-20T10:04:00+01:00",
-                "eventName": "Forwarded - Mis-sort",
-                "locationName": "Stafford DO"
-              }
-            ],
             "links": {
-              "redelivery": {
-                "description": "Book a redelivery",
-                "href": "/personal/receiving-mail/redelivery",
-                "title": "Redelivery"
-              },
-              "signature": {
-                "description": "Get signature",
-                "href": "/mailpieces/v2/090367574000000FE1E1B/signature",
-                "title": "Signature"
-              },
-              "summary": {
-                "description": "Get summary",
-                "href": "/mailpieces/v2/summary?mailPieceId=090367574000000FE1E1B",
-                "title": "Summary"
+              "events": {
+                "description": "Get events",
+                "href": "/mailpieces/v2/FQ087430672GB/events",
+                "title": "Events"
               }
             },
             "mailPieceId": "090367574000000FE1E1B",
-            "signature": {
-              "imageId": "001234",
-              "recipientName": "Simon",
-              "signatureDateTime": "2016-10-20T10:04:00+01:00"
-            },
             "summary": {
               "destinationCountryCode": "GBR",
               "destinationCountryName": "United Kingdom of Great Britain and Northern Ireland",
@@ -643,71 +595,52 @@ final class SummaryTest extends TestCase
     private function mockResponse(): string
     {
         return '{
-          "mailPieces": [{
-            "mailPieceId": "090367574000000FE1E1B",
-            "carrierShortName": "RM",
-            "carrierFullName": "Royal Mail Group Ltd",
-            "summary": {
-              "uniqueItemId": "090367574000000FE1E1B",
-              "oneDBarcode": "FQ087430672GB",
-              "productId": "SD2",
-              "productName": "Special Delivery Guaranteed",
-              "productDescription": "Our guaranteed next day service with tracking and a signature on delivery",
-              "productCategory": "NON-INTERNATIONAL",
-              "destinationCountryCode": "GBR",
-              "destinationCountryName": "United Kingdom of Great Britain and Northern Ireland",
-              "originCountryCode": "GBR",
-              "originCountryName": "United Kingdom of Great Britain and Northern Ireland",
-              "lastEventCode": "EVNMI",
-              "lastEventName": "Forwarded - Mis-sort",
-              "lastEventDateTime": "2016-10-20T10:04:00+01:00",
-              "lastEventLocationName": "Stafford DO",
-              "statusDescription": "It is being redirected",
-              "statusCategory": "IN TRANSIT",
-              "statusHelpText": "The item is in transit",
-              "summaryLine": "Item FQ087430672GB was forwarded to the Delivery Office on 2016-10-20.",
-              "internationalPostalProvider": {
-                "url": "https://www.royalmail.com/track-your-item",
-                "title": "Royal Mail Group Ltd",
-                "description": "Royal Mail Group Ltd"
-               }
-            },
-            "signature": {
-              "recipientName": "Simon",
-                "signatureDateTime": "2016-10-20T10:04:00+01:00",
-                "imageId": "001234"
-              },
-            "estimatedDelivery": {
-              "date": "2017-02-20",
-                "startOfEstimatedWindow": "08:00:00+01:00",
-                "endOfEstimatedWindow": "11:00:00+01:00"
-              },
-            "events": [
-              {
-                "eventCode": "EVNMI",
-                "eventName": "Forwarded - Mis-sort",
-                "eventDateTime": "2016-10-20T10:04:00+01:00",
-                "locationName": "Stafford DO"
-              }
-            ],
-            "links": {
+          "mailPieces": [
+            {
+              "mailPieceId": "090367574000000FE1E1B",
+              "status": "200",
+              "carrierShortName": "RM",
+              "carrierFullName": "Royal Mail Group Ltd",
               "summary": {
-                "href": "/mailpieces/v2/summary?mailPieceId=090367574000000FE1E1B",
-                "title": "Summary",
-                "description": "Get summary"
+                "uniqueItemId": "090367574000000FE1E1B",
+                "oneDBarcode": "FQ087430672GB",
+                "productId": "SD2",
+                "productName": "Special Delivery Guaranteed",
+                "productDescription": "Our guaranteed next day service with tracking and a signature on delivery",
+                "productCategory": "NON-INTERNATIONAL",
+                "destinationCountryCode": "GBR",
+                "destinationCountryName": "United Kingdom of Great Britain and Northern Ireland",
+                "originCountryCode": "GBR",
+                "originCountryName": "United Kingdom of Great Britain and Northern Ireland",
+                "lastEventCode": "EVNMI",
+                "lastEventName": "Forwarded - Mis-sort",
+                "lastEventDateTime": "2016-10-20T10:04:00+01:00",
+                "lastEventLocationName": "Stafford DO",
+                "statusDescription": "It is being redirected",
+                "statusCategory": "IN TRANSIT",
+                "statusHelpText": "The item is in transit",
+                "summaryLine": "Item FQ087430672GB was forwarded to the Delivery Office on 2016-10-20.",
+                "internationalPostalProvider": {
+                  "url": "https://www.royalmail.com/track-your-item",
+                  "title": "Royal Mail Group Ltd",
+                  "description": "Royal Mail Group Ltd"
+                }
               },
-              "signature": {
-                "href": "/mailpieces/v2/090367574000000FE1E1B/signature",
-                "title": "Signature",
-                "description": "Get signature"
+              "links": {
+                "events": {
+                  "href": "/mailpieces/v2/FQ087430672GB/events",
+                  "title": "Events",
+                  "description": "Get events"
+                }
               },
-              "redelivery": {
-                "href": "/personal/receiving-mail/redelivery",
-                "title": "Redelivery",
-                "description": "Book a redelivery"
+              "error": {
+                "errorCode": "E1142",
+                "errorDescription": "Barcode reference mailPieceId isn not recognised",
+                "errorCause": "A mail item with that barcode cannot be located",
+                "errorResolution": "Check barcode and resubmit"
               }
             }
-          }
-        ]}';
+          ]
+        }';
     }
 }

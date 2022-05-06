@@ -9,6 +9,7 @@ final class Links
     private ?Link $summary = null;
     private ?Link $signature = null;
     private ?Link $redelivery = null;
+    private ?Link $events = null;
 
     /**
      * @return \ElliotJReed\RoyalMail\Tracking\Entity\Link|null Summary link information
@@ -66,6 +67,26 @@ final class Links
     public function setRedelivery(?Link $redelivery): self
     {
         $this->redelivery = $redelivery;
+
+        return $this;
+    }
+
+    /**
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Link|null Container for events link information
+     */
+    public function getEvents(): ?Link
+    {
+        return $this->events;
+    }
+
+    /**
+     * @param \ElliotJReed\RoyalMail\Tracking\Entity\Link|null $events Container for events link information
+     *
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Links
+     */
+    public function setEvents(?Link $events): self
+    {
+        $this->events = $events;
 
         return $this;
     }

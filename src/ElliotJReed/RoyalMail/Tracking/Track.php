@@ -84,122 +84,24 @@ abstract class Track
             ->setCarrierFullName($mailPiece['carrierFullName'] ?? null);
 
         if (isset($mailPiece['summary'])) {
-            $summary = $mailPiece['summary'];
-
-            try {
-                $lastEventDateTime = new DateTimeImmutable($summary['lastEventDateTime']);
-            } catch (Exception) {
-                $lastEventDateTime = null;
-            }
-
-            $trackingSummary = (new Summary())
-                ->setUniqueItemId($summary['uniqueItemId'] ?? null)
-                ->setOneDBarcode($summary['oneDBarcode'] ?? null)
-                ->setProductId($summary['productId'] ?? null)
-                ->setProductName($summary['productName'] ?? null)
-                ->setProductDescription($summary['productDescription'] ?? null)
-                ->setProductCategory($summary['productCategory'] ?? null)
-                ->setDestinationCountryCode($summary['destinationCountryCode'] ?? null)
-                ->setDestinationCountryName($summary['destinationCountryName'] ?? null)
-                ->setOriginCountryCode($summary['originCountryCode'] ?? null)
-                ->setOriginCountryName($summary['originCountryName'] ?? null)
-                ->setLastEventCode($summary['lastEventCode'] ?? null)
-                ->setLastEventName($summary['lastEventName'] ?? null)
-                ->setLastEventDateTime($lastEventDateTime)
-                ->setLastEventLocationName($summary['lastEventLocationName'] ?? null)
-                ->setStatusDescription($summary['statusDescription'] ?? null)
-                ->setStatusCategory($summary['statusCategory'] ?? null)
-                ->setStatusHelpText($summary['statusHelpText'] ?? null)
-                ->setSummaryLine($summary['summaryLine'] ?? null);
-
-            if (isset($summary['internationalPostalProvider'])) {
-                $internationalPostalProvider = $summary['internationalPostalProvider'];
-
-                $trackingSummary->setInternationalPostalProvider((new InternationalPostalProvider())
-                    ->setUrl($internationalPostalProvider['url'] ?? null)
-                    ->setTitle($internationalPostalProvider['title'] ?? null)
-                    ->setDescription($internationalPostalProvider['description'] ?? null));
-            }
-
-            $tracking->setSummary($trackingSummary);
+            $tracking->setSummary($this->buildSummary($mailPiece));
         }
 
         if (isset($mailPiece['signature'])) {
-            $signature = $mailPiece['signature'];
-
-            try {
-                $signatureDateTime = new DateTimeImmutable($signature['signatureDateTime']);
-            } catch (Exception) {
-                $signatureDateTime = null;
-            }
-
-            $tracking->setSignature((new Signature())
-                ->setRecipientName($signature['recipientName'] ?? null)
-                ->setSignatureDateTime($signatureDateTime)
-                ->setImageId($signature['imageId'] ?? null));
+            $tracking->setSignature($this->buildSignature($mailPiece['signature']));
         }
 
         if (isset($mailPiece['estimatedDelivery'])) {
-            $estimatedDelivery = $mailPiece['estimatedDelivery'];
-
-            $dateString = $estimatedDelivery['date'];
-            $date = DateTimeImmutable::createFromFormat('Y-m-d', $dateString);
-
-            if ($date) {
-                $startOfEstimatedWindow = $dateString . ' ' . $estimatedDelivery['startOfEstimatedWindow'];
-                $endOfEstimatedWindow = $dateString . ' ' . $estimatedDelivery['endOfEstimatedWindow'];
-                $tracking->setEstimatedDelivery((new EstimatedDelivery())->setDate($date->setTime(0, 0)));
-
-                try {
-                    $tracking->getEstimatedDelivery()
-                        ->setStartOfEstimatedWindow(new DateTimeImmutable($startOfEstimatedWindow))
-                        ->setEndOfEstimatedWindow(new DateTimeImmutable($endOfEstimatedWindow));
-                } catch (Exception) {
-                }
-            }
+            $tracking->setEstimatedDelivery($this->buildEstimatedDelivery($mailPiece['estimatedDelivery']));
         }
 
         if (isset($mailPiece['links'])) {
-            $links = $mailPiece['links'];
-
-            $trackingLinks = new Links();
-
-            if (isset($links['summary'])) {
-                $summaryLink = $links['summary'];
-
-                $trackingLinks->setSummary((new Link())
-                    ->setHref($summaryLink['href'] ?? null)
-                    ->setTitle($summaryLink['title'] ?? null)
-                    ->setDescription($summaryLink['description'] ?? null));
-            }
-
-            if (isset($links['signature'])) {
-                $signatureLink = $links['signature'];
-
-                $trackingLinks->setSignature((new Link())
-                    ->setHref($signatureLink['href'] ?? null)
-                    ->setTitle($signatureLink['title'] ?? null)
-                    ->setDescription($signatureLink['description'] ?? null));
-            }
-
-            if (isset($links['redelivery'])) {
-                $redelivery = $links['redelivery'];
-
-                $trackingLinks->setRedelivery((new Link())
-                    ->setHref($redelivery['href'] ?? null)
-                    ->setTitle($redelivery['title'] ?? null)
-                    ->setDescription($redelivery['description'] ?? null));
-            }
-            $tracking->setLinks($trackingLinks);
+            $tracking->setLinks($this->buildLinks($mailPiece));
         }
 
         if (isset($mailPiece['events'])) {
             foreach ($mailPiece['events'] as $event) {
-                $tracking->addEvent((new Event())
-                    ->setEventCode($event['eventCode'] ?? null)
-                    ->setEventName($event['eventName'] ?? null)
-                    ->setEventDateTime(new DateTimeImmutable($event['eventDateTime']))
-                    ->setLocationName($event['locationName'] ?? null));
+                $tracking->addEvent($this->buildEvent($event));
             }
         }
 
@@ -249,5 +151,143 @@ abstract class Track
             429 => (new RequestLimitExceeded($message))->setErrorResponse($error),
             default => (new RoyalMailServerError($message))->setErrorResponse($error)
         };
+    }
+
+    private function buildSummary(array $mailPiece): Summary
+    {
+        $trackingSummary = (new Summary())
+            ->setUniqueItemId($mailPiece['summary']['uniqueItemId'] ?? null)
+            ->setOneDBarcode($mailPiece['summary']['oneDBarcode'] ?? null)
+            ->setProductId($mailPiece['summary']['productId'] ?? null)
+            ->setProductName($mailPiece['summary']['productName'] ?? null)
+            ->setProductDescription($mailPiece['summary']['productDescription'] ?? null)
+            ->setProductCategory($mailPiece['summary']['productCategory'] ?? null)
+            ->setDestinationCountryCode($mailPiece['summary']['destinationCountryCode'] ?? null)
+            ->setDestinationCountryName($mailPiece['summary']['destinationCountryName'] ?? null)
+            ->setOriginCountryCode($mailPiece['summary']['originCountryCode'] ?? null)
+            ->setOriginCountryName($mailPiece['summary']['originCountryName'] ?? null)
+            ->setLastEventCode($mailPiece['summary']['lastEventCode'] ?? null)
+            ->setLastEventName($mailPiece['summary']['lastEventName'] ?? null)
+            ->setLastEventLocationName($mailPiece['summary']['lastEventLocationName'] ?? null)
+            ->setStatusDescription($mailPiece['summary']['statusDescription'] ?? null)
+            ->setStatusCategory($mailPiece['summary']['statusCategory'] ?? null)
+            ->setStatusHelpText($mailPiece['summary']['statusHelpText'] ?? null)
+            ->setSummaryLine($mailPiece['summary']['summaryLine'] ?? null);
+
+        try {
+            $trackingSummary->setLastEventDateTime(new DateTimeImmutable($mailPiece['summary']['lastEventDateTime']));
+        } catch (Exception) {
+        }
+
+        if (isset($mailPiece['summary']['internationalPostalProvider'])) {
+            $internationalPostalProvider = $mailPiece['summary']['internationalPostalProvider'];
+
+            $trackingSummary->setInternationalPostalProvider((new InternationalPostalProvider())
+                ->setUrl($internationalPostalProvider['url'] ?? null)
+                ->setTitle($internationalPostalProvider['title'] ?? null)
+                ->setDescription($internationalPostalProvider['description'] ?? null));
+        }
+
+        return $trackingSummary;
+    }
+
+    private function buildSignature(array $signatureArray): Signature
+    {
+        $signature = (new Signature())
+            ->setRecipientName($signatureArray['recipientName'] ?? null)
+            ->setImageId($signatureArray['imageId'] ?? null)
+            ->setImage($signatureArray['image'] ?? null)
+            ->setHeight($signatureArray['height'] ?? null)
+            ->setWidth($signatureArray['width'] ?? null)
+            ->setImageFormat($signatureArray['imageFormat'] ?? null)
+            ->setUniqueItemId($signatureArray['uniqueItemId'] ?? null)
+            ->setOneDBarcode($signatureArray['oneDBarcode'] ?? null);
+
+        try {
+            $signature->setSignatureDateTime(new DateTimeImmutable($signatureArray['signatureDateTime']));
+        } catch (Exception) {
+        }
+
+        return $signature;
+    }
+
+    private function buildEvent(array $eventArray): Event
+    {
+        $event = (new Event())
+            ->setEventCode($eventArray['eventCode'] ?? null)
+            ->setEventName($eventArray['eventName'] ?? null)
+            ->setLocationName($eventArray['locationName'] ?? null);
+
+        try {
+            $event->setEventDateTime(new DateTimeImmutable($eventArray['eventDateTime']));
+        } catch (Exception) {
+        }
+
+        return $event;
+    }
+
+    private function buildLinks(array $mailPiece): Links
+    {
+        $trackingLinks = new Links();
+
+        if (isset($mailPiece['links']['summary'])) {
+            $summaryLink = $mailPiece['links']['summary'];
+
+            $trackingLinks->setSummary((new Link())
+                ->setHref($summaryLink['href'] ?? null)
+                ->setTitle($summaryLink['title'] ?? null)
+                ->setDescription($summaryLink['description'] ?? null));
+        }
+
+        if (isset($mailPiece['links']['signature'])) {
+            $signatureLink = $mailPiece['links']['signature'];
+
+            $trackingLinks->setSignature((new Link())
+                ->setHref($signatureLink['href'] ?? null)
+                ->setTitle($signatureLink['title'] ?? null)
+                ->setDescription($signatureLink['description'] ?? null));
+        }
+
+        if (isset($mailPiece['links']['redelivery'])) {
+            $redelivery = $mailPiece['links']['redelivery'];
+
+            $trackingLinks->setRedelivery((new Link())
+                ->setHref($redelivery['href'] ?? null)
+                ->setTitle($redelivery['title'] ?? null)
+                ->setDescription($redelivery['description'] ?? null));
+        }
+
+        if (isset($mailPiece['links']['events'])) {
+            $events = $mailPiece['links']['events'];
+
+            $trackingLinks->setEvents((new Link())
+                ->setHref($events['href'] ?? null)
+                ->setTitle($events['title'] ?? null)
+                ->setDescription($events['description'] ?? null));
+        }
+
+        return $trackingLinks;
+    }
+
+    private function buildEstimatedDelivery(array $estimatedDeliveryArray): ?EstimatedDelivery
+    {
+        $estimatedDelivery = null;
+        $dateString = $estimatedDeliveryArray['date'];
+        $date = DateTimeImmutable::createFromFormat('Y-m-d', $dateString);
+
+        if ($date) {
+            $estimatedDelivery = (new EstimatedDelivery())->setDate($date->setTime(0, 0));
+            $startOfEstimatedWindow = $dateString . ' ' . $estimatedDeliveryArray['startOfEstimatedWindow'];
+            $endOfEstimatedWindow = $dateString . ' ' . $estimatedDeliveryArray['endOfEstimatedWindow'];
+
+            try {
+                $estimatedDelivery
+                    ->setStartOfEstimatedWindow(new DateTimeImmutable($startOfEstimatedWindow))
+                    ->setEndOfEstimatedWindow(new DateTimeImmutable($endOfEstimatedWindow));
+            } catch (Exception) {
+            }
+        }
+
+        return $estimatedDelivery;
     }
 }

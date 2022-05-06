@@ -13,7 +13,7 @@ final class MailPiece
     private ?Signature $signature = null;
     private ?EstimatedDelivery $estimatedDelivery = null;
     /** @var \ElliotJReed\RoyalMail\Tracking\Entity\Event[] */
-    private array $events = [];
+    private ?array $events = null;
     private ?Links $links = null;
     private ?ErrorResponseError $error = null;
 
@@ -140,9 +140,9 @@ final class MailPiece
     }
 
     /**
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event[] Array containing mail piece event information
+     * @return array|null Array containing mail piece event information
      */
-    public function getEvents(): array
+    public function getEvents(): ?array
     {
         return $this->events;
     }

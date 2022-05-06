@@ -53,70 +53,26 @@ final class SignatureTest extends TestCase
         $this->assertSame('RM', $response->getCarrierShortName());
         $this->assertSame('Royal Mail Group Ltd', $response->getCarrierFullName());
 
-        $summary = $response->getSummary();
-        $this->assertSame('090367574000000FE1E1B', $summary->getUniqueItemId());
-        $this->assertSame('FQ087430672GB', $summary->getOneDBarcode());
-        $this->assertSame('SD2', $summary->getProductId());
-        $this->assertSame('Special Delivery Guaranteed', $summary->getProductName());
-        $this->assertSame(
-            'Our guaranteed next day service with tracking and a signature on delivery',
-            $summary->getProductDescription()
-        );
-        $this->assertSame('NON-INTERNATIONAL', $summary->getProductCategory());
-        $this->assertSame('GBR', $summary->getDestinationCountryCode());
-        $this->assertSame(
-            'United Kingdom of Great Britain and Northern Ireland',
-            $summary->getDestinationCountryName()
-        );
-        $this->assertSame('GBR', $summary->getOriginCountryCode());
-        $this->assertSame('United Kingdom of Great Britain and Northern Ireland', $summary->getOriginCountryName());
-        $this->assertSame('EVNMI', $summary->getLastEventCode());
-        $this->assertSame('Forwarded - Mis-sort', $summary->getLastEventName());
-        $this->assertEquals(new DateTimeImmutable('2016-10-20T10:04:00+01:00'), $summary->getLastEventDateTime());
-        $this->assertSame('Stafford DO', $summary->getLastEventLocationName());
-        $this->assertSame('It is being redirected', $summary->getStatusDescription());
-        $this->assertSame('IN TRANSIT', $summary->getStatusCategory());
-        $this->assertSame('The item is in transit', $summary->getStatusHelpText());
-        $this->assertSame(
-            'Item FQ087430672GB was forwarded to the Delivery Office on 2016-10-20.',
-            $summary->getSummaryLine()
-        );
-
-        $internationalPostalProvider = $summary->getInternationalPostalProvider();
-        $this->assertSame('https://www.royalmail.com/track-your-item', $internationalPostalProvider->getUrl());
-        $this->assertSame('Royal Mail Group Ltd', $internationalPostalProvider->getTitle());
-        $this->assertSame('Royal Mail Group Ltd', $internationalPostalProvider->getDescription());
-
         $signature = $response->getSignature();
-        $this->assertSame('Simon', $signature->getRecipientName());
-        $this->assertSame('2016-10-20T10:04:00+01:00', $signature->getSignatureDateTime()->format('c'));
+        $this->assertSame('Elliot', $signature->getRecipientName());
+        $this->assertEquals(new DateTimeImmutable('2017-03-30T16:15:00+01:00'), $signature->getSignatureDateTime());
         $this->assertSame('001234', $signature->getImageId());
+        $this->assertSame('FQ087430672GB', $signature->getOneDBarcode());
+        $this->assertSame(530, $signature->getHeight());
+        $this->assertSame(660, $signature->getWidth());
+        $this->assertSame('090367574000000FE1E1B', $signature->getUniqueItemId());
+        $this->assertSame('image/svg+xml', $signature->getImageFormat());
+        $this->assertSame('<svg></svg>', $signature->getImage());
 
-        $estimatedDelivery = $response->getEstimatedDelivery();
-        $this->assertSame('2017-02-20T00:00:00+00:00', $estimatedDelivery->getDate()->format('c'));
-        $this->assertSame('2017-02-20T08:00:00+01:00', $estimatedDelivery->getStartOfEstimatedWindow()->format('c'));
-        $this->assertSame('2017-02-20T11:00:00+01:00', $estimatedDelivery->getEndOfEstimatedWindow()->format('c'));
-
-        $event = $response->getEvents()[0];
-        $this->assertSame('EVNMI', $event->getEventCode());
-        $this->assertSame('Forwarded - Mis-sort', $event->getEventName());
-        $this->assertSame('2016-10-20T10:04:00+01:00', $event->getEventDateTime()->format('c'));
-        $this->assertSame('Stafford DO', $event->getLocationName());
+        $events = $response->getLinks()->getEvents();
+        $this->assertSame('/mailpieces/v2/FQ087430672GB/events', $events->getHref());
+        $this->assertSame('Events', $events->getTitle());
+        $this->assertSame('Get events', $events->getDescription());
 
         $linkSummary = $response->getLinks()->getSummary();
         $this->assertSame('/mailpieces/v2/summary?mailPieceId=090367574000000FE1E1B', $linkSummary->getHref());
         $this->assertSame('Summary', $linkSummary->getTitle());
         $this->assertSame('Get summary', $linkSummary->getDescription());
-
-        $linkSignature = $response->getLinks()->getSignature();
-        $this->assertSame('/mailpieces/v2/090367574000000FE1E1B/signature', $linkSignature->getHref());
-        $this->assertSame('Signature', $linkSignature->getTitle());
-        $this->assertSame('Get signature', $linkSignature->getDescription());
-
-        $linkRedelivery = $response->getLinks()->getRedelivery();
-        $this->assertSame('/personal/receiving-mail/redelivery', $linkRedelivery->getHref());
-        $this->assertSame('Redelivery', $linkRedelivery->getTitle());
-        $this->assertSame('Book a redelivery', $linkRedelivery->getDescription());
     }
 
     public function testItReturnsJsonEncodedTrackingData(): void
@@ -130,29 +86,11 @@ final class SignatureTest extends TestCase
         $this->assertJsonStringEqualsJsonString('{
           "carrierFullName": "Royal Mail Group Ltd",
           "carrierShortName": "RM",
-          "estimatedDelivery": {
-            "date": "2017-02-20T00:00:00+00:00",
-            "endOfEstimatedWindow": "2017-02-20T11:00:00+01:00",
-            "startOfEstimatedWindow": "2017-02-20T08:00:00+01:00"
-          },
-          "events": [
-            {
-              "eventCode": "EVNMI",
-              "eventDateTime": "2016-10-20T10:04:00+01:00",
-              "eventName": "Forwarded - Mis-sort",
-              "locationName": "Stafford DO"
-            }
-          ],
           "links": {
-            "redelivery": {
-              "description": "Book a redelivery",
-              "href": "/personal/receiving-mail/redelivery",
-              "title": "Redelivery"
-            },
-            "signature": {
-              "description": "Get signature",
-              "href": "/mailpieces/v2/090367574000000FE1E1B/signature",
-              "title": "Signature"
+            "events": {
+              "description": "Get events",
+              "href": "/mailpieces/v2/FQ087430672GB/events",
+              "title": "Events"
             },
             "summary": {
               "description": "Get summary",
@@ -162,34 +100,15 @@ final class SignatureTest extends TestCase
           },
           "mailPieceId": "090367574000000FE1E1B",
           "signature": {
+            "height": 530,
+            "image": "<svg></svg>",
+            "imageFormat": "image/svg+xml",
             "imageId": "001234",
-            "recipientName": "Simon",
-            "signatureDateTime": "2016-10-20T10:04:00+01:00"
-          },
-          "summary": {
-            "destinationCountryCode": "GBR",
-            "destinationCountryName": "United Kingdom of Great Britain and Northern Ireland",
-            "internationalPostalProvider": {
-              "description": "Royal Mail Group Ltd",
-              "title": "Royal Mail Group Ltd",
-              "url": "https://www.royalmail.com/track-your-item"
-            },
-            "lastEventCode": "EVNMI",
-            "lastEventDateTime": "2016-10-20T10:04:00+01:00",
-            "lastEventLocationName": "Stafford DO",
-            "lastEventName": "Forwarded - Mis-sort",
             "oneDBarcode": "FQ087430672GB",
-            "originCountryCode": "GBR",
-            "originCountryName": "United Kingdom of Great Britain and Northern Ireland",
-            "productCategory": "NON-INTERNATIONAL",
-            "productDescription": "Our guaranteed next day service with tracking and a signature on delivery",
-            "productId": "SD2",
-            "productName": "Special Delivery Guaranteed",
-            "statusCategory": "IN TRANSIT",
-            "statusDescription": "It is being redirected",
-            "statusHelpText": "The item is in transit",
-            "summaryLine": "Item FQ087430672GB was forwarded to the Delivery Office on 2016-10-20.",
-            "uniqueItemId": "090367574000000FE1E1B"
+            "recipientName": "Elliot",
+            "signatureDateTime": "2017-03-30T16:15:00+01:00",
+            "uniqueItemId": "090367574000000FE1E1B",
+            "width": 660
           }
         }', $response->asJson());
     }
@@ -613,64 +532,27 @@ final class SignatureTest extends TestCase
             "mailPieceId": "090367574000000FE1E1B",
             "carrierShortName": "RM",
             "carrierFullName": "Royal Mail Group Ltd",
-            "summary": {
+            "signature": {
               "uniqueItemId": "090367574000000FE1E1B",
               "oneDBarcode": "FQ087430672GB",
-              "productId": "SD2",
-              "productName": "Special Delivery Guaranteed",
-              "productDescription": "Our guaranteed next day service with tracking and a signature on delivery",
-              "productCategory": "NON-INTERNATIONAL",
-              "destinationCountryCode": "GBR",
-              "destinationCountryName": "United Kingdom of Great Britain and Northern Ireland",
-              "originCountryCode": "GBR",
-              "originCountryName": "United Kingdom of Great Britain and Northern Ireland",
-              "lastEventCode": "EVNMI",
-              "lastEventName": "Forwarded - Mis-sort",
-              "lastEventDateTime": "2016-10-20T10:04:00+01:00",
-              "lastEventLocationName": "Stafford DO",
-              "statusDescription": "It is being redirected",
-              "statusCategory": "IN TRANSIT",
-              "statusHelpText": "The item is in transit",
-              "summaryLine": "Item FQ087430672GB was forwarded to the Delivery Office on 2016-10-20.",
-              "internationalPostalProvider": {
-                "url": "https://www.royalmail.com/track-your-item",
-                "title": "Royal Mail Group Ltd",
-                "description": "Royal Mail Group Ltd"
-               }
+              "recipientName": "Elliot",
+              "signatureDateTime": "2017-03-30T16:15:00+01:00",
+              "imageFormat": "image/svg+xml",
+              "imageId": "001234",
+              "height": 530,
+              "width": 660,
+              "image": "<svg></svg>"
             },
-            "signature": {
-              "recipientName": "Simon",
-                "signatureDateTime": "2016-10-20T10:04:00+01:00",
-                "imageId": "001234"
-              },
-            "estimatedDelivery": {
-              "date": "2017-02-20",
-                "startOfEstimatedWindow": "08:00:00+01:00",
-                "endOfEstimatedWindow": "11:00:00+01:00"
-              },
-            "events": [
-              {
-                "eventCode": "EVNMI",
-                "eventName": "Forwarded - Mis-sort",
-                "eventDateTime": "2016-10-20T10:04:00+01:00",
-                "locationName": "Stafford DO"
-              }
-            ],
             "links": {
+              "events": {
+                "href": "/mailpieces/v2/FQ087430672GB/events",
+                "title": "Events",
+                "description": "Get events"
+              },
               "summary": {
                 "href": "/mailpieces/v2/summary?mailPieceId=090367574000000FE1E1B",
                 "title": "Summary",
                 "description": "Get summary"
-              },
-              "signature": {
-                "href": "/mailpieces/v2/090367574000000FE1E1B/signature",
-                "title": "Signature",
-                "description": "Get signature"
-              },
-              "redelivery": {
-                "href": "/personal/receiving-mail/redelivery",
-                "title": "Redelivery",
-                "description": "Book a redelivery"
               }
             }
           }

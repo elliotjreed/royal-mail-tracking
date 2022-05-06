@@ -89,18 +89,18 @@ final class EventsTest extends TestCase
 
         $signature = $response->getSignature();
         $this->assertSame('Simon', $signature->getRecipientName());
-        $this->assertSame('2016-10-20T10:04:00+01:00', $signature->getSignatureDateTime()->format('c'));
+        $this->assertEquals(new DateTimeImmutable('2016-10-20T10:04:00+01:00'), $signature->getSignatureDateTime());
         $this->assertSame('001234', $signature->getImageId());
 
         $estimatedDelivery = $response->getEstimatedDelivery();
-        $this->assertSame('2017-02-20T00:00:00+00:00', $estimatedDelivery->getDate()->format('c'));
-        $this->assertSame('2017-02-20T08:00:00+01:00', $estimatedDelivery->getStartOfEstimatedWindow()->format('c'));
-        $this->assertSame('2017-02-20T11:00:00+01:00', $estimatedDelivery->getEndOfEstimatedWindow()->format('c'));
+        $this->assertEquals(new DateTimeImmutable('2017-02-20T00:00:00+00:00'), $estimatedDelivery->getDate());
+        $this->assertEquals(new DateTimeImmutable('2017-02-20T08:00:00+01:00'), $estimatedDelivery->getStartOfEstimatedWindow());
+        $this->assertEquals(new DateTimeImmutable('2017-02-20T11:00:00+01:00'), $estimatedDelivery->getEndOfEstimatedWindow());
 
         $event = $response->getEvents()[0];
         $this->assertSame('EVNMI', $event->getEventCode());
         $this->assertSame('Forwarded - Mis-sort', $event->getEventName());
-        $this->assertSame('2016-10-20T10:04:00+01:00', $event->getEventDateTime()->format('c'));
+        $this->assertEquals(new DateTimeImmutable('2016-10-20T10:04:00+01:00'), $event->getEventDateTime());
         $this->assertSame('Stafford DO', $event->getLocationName());
 
         $linkSummary = $response->getLinks()->getSummary();
