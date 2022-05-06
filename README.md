@@ -81,7 +81,7 @@ The behaviour of the events operation is to provide a history of tracks for a si
 Returns the summary, signature metadata, estimated delivery window and events for a supplied tracking number.
 
 ```php
-$response = (new Events($client, 'client-id', 'client-secret'))
+$response = (new Events($client, 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', '12345678901234567890123456789012345678901234567890'))
 	->setTrackingNumber('FQ087430672GB')
 	->get();
 
@@ -150,7 +150,7 @@ $linkRedelivery->getDescription(); // Book a redelivery
 #### JSON output
 
 ```php
-echo (new Events($client, 'client-id', 'client-secret'))
+echo (new Events($client, 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', '12345678901234567890123456789012345678901234567890'))
 	->setTrackingNumber('FQ087430672GB')
 	->asJson();
 ```
@@ -235,7 +235,7 @@ This operation only allows a maximum of 30 tracking numbers to be provided in th
 (eg. `->setTrackingNumbers('AB0123456789GB', 'CD0123456789GB')`).
 
 ```php
-$response = (new Summary($client, 'client-id', 'client-secret'))
+$response = (new Summary($client, 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', '12345678901234567890123456789012345678901234567890'))
 	->setTrackingNumbers('FQ087430672GB')
 	->get();
 
@@ -285,7 +285,7 @@ $error->getErrorResolution(); // Check barcode and resubmit
 #### JSON output
 
 ```php
-echo (new Summary($client, 'client-id', 'client-secret'))
+echo (new Summary($client, 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', '12345678901234567890123456789012345678901234567890'))
 	->setTrackingNumbers('123456789GB')
 	->asJson();
 ```
@@ -343,7 +343,7 @@ Would output the Royal Mail summary response as JSON:
 ### Signature
 
 ```php
-$response = (new Signature($client, 'client-id', 'client-secret'))
+$response = (new Signature($client, 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', '12345678901234567890123456789012345678901234567890'))
 	->setTrackingNumber('FQ087430672GB')
 	->get();
 
@@ -376,7 +376,7 @@ $linkSummary->getDescription(); // Get summary
 #### JSON output
 
 ```php
-echo (new Summary($client, 'client-id', 'client-secret'))
+echo (new Summary($client, 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', '12345678901234567890123456789012345678901234567890'))
 	->setTrackingNumbers('FQ087430672GB')
 	->asJson();
 ```
