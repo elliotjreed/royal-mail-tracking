@@ -6,6 +6,7 @@ namespace ElliotJReed\RoyalMail\Tracking;
 
 use ElliotJReed\RoyalMail\Tracking\Entity\ErrorResponse;
 use ElliotJReed\RoyalMail\Tracking\Entity\Response;
+use ElliotJReed\RoyalMail\Tracking\Exception\BadRequest;
 use ElliotJReed\RoyalMail\Tracking\Exception\ClientIdNotRegistered;
 use ElliotJReed\RoyalMail\Tracking\Exception\DeliveryUpdateNotAvailable;
 use ElliotJReed\RoyalMail\Tracking\Exception\InternalServerError;
@@ -160,14 +161,28 @@ abstract class Track
             }
         }
 
-        if ($this->throwExceptionOnTechnicalError) {
+        if ($this->throwExceptionOnTechnicalError && empty($errors)) {
+            /*
+             * According to the Royal Mail documentation errors with an HTTP Code grater than 405 should be served with
+             * a corresponding errorCode. However, in reality this is not always the case, so they are handled here
+             * should they not have been handled above.
+             */
+            $exceptionMessage = $response->getMoreInformation() ?? $response->getHttpMessage() ?? 'Royal Mail Error';
             switch ($response->getHttpCode()) {
                 case 401:
-                    throw (new ClientIdNotRegistered($response->getMoreInformation()))->setResponse($response);
+                    throw (new ClientIdNotRegistered($exceptionMessage))->setResponse($response);
                 case 404:
-                    throw (new UriNotFound($response->getMoreInformation()))->setResponse($response);
+                    throw (new UriNotFound($exceptionMessage))->setResponse($response);
                 case 405:
-                    throw (new MethodNotAllowed($response->getMoreInformation()))->setResponse($response);
+                    throw (new MethodNotAllowed($exceptionMessage))->setResponse($response);
+                case 400:
+                    throw (new BadRequest($exceptionMessage))->setResponse($response);
+                case 429:
+                    throw (new TooManyRequests($exceptionMessage))->setResponse($response);
+                case 500:
+                    throw (new InternalServerError($exceptionMessage))->setResponse($response);
+                case 503:
+                    throw (new ServiceUnavailable($exceptionMessage))->setResponse($response);
             }
         }
     }

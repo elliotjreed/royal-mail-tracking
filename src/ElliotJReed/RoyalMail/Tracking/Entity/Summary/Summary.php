@@ -400,8 +400,7 @@ final class Summary
     }
 
     /**
-     * @param \ElliotJReed\RoyalMail\Tracking\Entity\InternationalPostalProvider|null $internationalPostalProvider
-     *                                                                                                             Object containing details of
+     * @param \ElliotJReed\RoyalMail\Tracking\Entity\InternationalPostalProvider|null $internationalPostalProvider object containing details of
      *                                                                                                             international postal organisation
      *
      * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary
