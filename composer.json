@@ -18,12 +18,12 @@
   "homepage": "https://github.com/elliotjreed/royal-mail-tracking",
   "autoload": {
     "psr-4": {
-      "ElliotJReed\\": "src/ElliotJReed/"
+      "ElliotJReed\\RoyalMail\\Tracking\\": "src/ElliotJReed/RoyalMail/Tracking"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Tests\\ElliotJReed\\": "tests/ElliotJReed/"
+      "Tests\\ElliotJReed\\RoyalMail\\Tracking\\": "tests/ElliotJReed/RoyalMail/Tracking"
     }
   },
   "require": {
