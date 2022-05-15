@@ -11,7 +11,7 @@ final class Link
     private ?string $description = null;
 
     /**
-     * @return string|null Relative URL link for summary information
+     * @return string|null relative URL link for summary information
      */
     public function getHref(): ?string
     {
@@ -19,9 +19,9 @@ final class Link
     }
 
     /**
-     * @param string|null $href Relative URL link for summary information
+     * @param string|null $href relative URL link for summary information
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Link
      */
     public function setHref(?string $href): self
     {
@@ -31,7 +31,7 @@ final class Link
     }
 
     /**
-     * @return string|null Title of the link
+     * @return string|null title of the link
      */
     public function getTitle(): ?string
     {
@@ -39,9 +39,9 @@ final class Link
     }
 
     /**
-     * @param string|null $title Title of the link
+     * @param string|null $title title of the link
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Link
      */
     public function setTitle(?string $title): self
     {
@@ -51,7 +51,7 @@ final class Link
     }
 
     /**
-     * @return string|null Description of the link
+     * @return string|null description of the link
      */
     public function getDescription(): ?string
     {
@@ -59,9 +59,9 @@ final class Link
     }
 
     /**
-     * @param string|null $description Description of the link
+     * @param string|null $description description of the link
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Link
      */
     public function setDescription(?string $description): self
     {

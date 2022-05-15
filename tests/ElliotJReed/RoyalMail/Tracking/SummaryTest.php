@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace Tests\ElliotJReed\RoyalMail\Tracking;
 
 use DateTimeImmutable;
-use ElliotJReed\RoyalMail\Tracking\Exception\Forbidden;
-use ElliotJReed\RoyalMail\Tracking\Exception\InvalidCredentials;
-use ElliotJReed\RoyalMail\Tracking\Exception\RequestError;
-use ElliotJReed\RoyalMail\Tracking\Exception\RequestLimitExceeded;
-use ElliotJReed\RoyalMail\Tracking\Exception\ResponseError;
-use ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailServerError;
+use ElliotJReed\RoyalMail\Tracking\Exception\ClientIdNotRegistered;
+use ElliotJReed\RoyalMail\Tracking\Exception\InternalServerError;
+use ElliotJReed\RoyalMail\Tracking\Exception\MaximumParametersExceeded;
+use ElliotJReed\RoyalMail\Tracking\Exception\MethodNotAllowed;
+use ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailResponseError;
+use ElliotJReed\RoyalMail\Tracking\Exception\SchemaValidationFailed;
+use ElliotJReed\RoyalMail\Tracking\Exception\ServiceUnavailable;
+use ElliotJReed\RoyalMail\Tracking\Exception\TooManyRequests;
+use ElliotJReed\RoyalMail\Tracking\Exception\UriNotFound;
 use ElliotJReed\RoyalMail\Tracking\Summary;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
@@ -29,7 +32,7 @@ final class SummaryTest extends TestCase
         $client = new Client(['handler' => HandlerStack::create($mock)]);
 
         (new Summary($client, 'client-id', 'client-secret'))
-            ->setTrackingNumbers('123456789GB');
+            ->setTrackingNumbers(['123456789GB']);
 
         $this->assertSame('/mailpieces/v2/summary', $mock->getLastRequest()->getUri()->getPath());
         $this->assertSame('GET', $mock->getLastRequest()->getMethod());
@@ -47,7 +50,7 @@ final class SummaryTest extends TestCase
         $client = new Client(['handler' => HandlerStack::create($mock)]);
 
         $response = (new Summary($client, 'client-id', 'client-secret'))
-            ->setTrackingNumbers('123456789GB')->get()[0];
+            ->setTrackingNumbers(['123456789GB'])->getResponse()->getMailPieces()[0];
 
         $this->assertSame('090367574000000FE1E1B', $response->getMailPieceId());
         $this->assertSame('RM', $response->getCarrierShortName());
@@ -91,38 +94,43 @@ final class SummaryTest extends TestCase
         $this->assertSame('/mailpieces/v2/FQ087430672GB/events', $events->getHref());
         $this->assertSame('Events', $events->getTitle());
         $this->assertSame('Get events', $events->getDescription());
+
+        $error = $response->getError();
+        $this->assertSame('E1142', $error->getErrorCode());
+        $this->assertSame('Barcode reference mailPieceId is not recognised', $error->getErrorDescription());
+        $this->assertSame('A mail item with that barcode cannot be located', $error->getErrorCause());
+        $this->assertSame('Check barcode and resubmit', $error->getErrorResolution());
     }
 
-    public function testItReturnsTrackingDataError(): void
+    public function testItReturnsTrackingDataInTheEventOfDateErrorException(): void
     {
-        $mock = new MockHandler([new Response(200, [], '{
+        $apiResponse = '{
           "mailPieces": [
             {
               "mailPieceId": "090367574000000FE1E1B",
               "status": "200",
               "carrierShortName": "RM",
               "carrierFullName": "Royal Mail Group Ltd",
-              "error": {
-                "errorCode": "E1142",
-                "errorDescription": "Barcode reference $mailPieceId isn\'t recognised",
-                "errorCause": "A mail item with that barcode cannot be located",
-                "errorResolution": "Check barcode and resubmit"
+              "summary": {
+                "uniqueItemId": "090367574000000FE1E1B",
+                "lastEventDateTime": "UNPARSEABLE DATETIME"
               }
             }
           ]
-        }')]);
+        }';
+        $mock = new MockHandler([new Response(200, [], $apiResponse)]);
         $client = new Client(['handler' => HandlerStack::create($mock)]);
 
         $response = (new Summary($client, 'client-id', 'client-secret'))
-            ->setTrackingNumbers('123456789GB')->get()[0];
+            ->setTrackingNumbers(['123456789GB'])->getResponse()->getMailPieces()[0];
 
         $this->assertSame('090367574000000FE1E1B', $response->getMailPieceId());
         $this->assertSame('RM', $response->getCarrierShortName());
         $this->assertSame('Royal Mail Group Ltd', $response->getCarrierFullName());
-        $this->assertSame('E1142', $response->getError()->getErrorCode());
-        $this->assertSame('Barcode reference $mailPieceId isn\'t recognised', $response->getError()->getErrorDescription());
-        $this->assertSame('A mail item with that barcode cannot be located', $response->getError()->getErrorCause());
-        $this->assertSame('Check barcode and resubmit', $response->getError()->getErrorResolution());
+
+        $summary = $response->getSummary();
+        $this->assertSame('090367574000000FE1E1B', $summary->getUniqueItemId());
+        $this->assertNull($summary->getLastEventDateTime());
     }
 
     public function testItReturnsTrackingDataAsJson(): void
@@ -131,53 +139,55 @@ final class SummaryTest extends TestCase
         $client = new Client(['handler' => HandlerStack::create($mock)]);
 
         $response = (new Summary($client, 'client-id', 'client-secret'))
-            ->setTrackingNumbers('123456789GB');
+            ->setTrackingNumbers(['123456789GB']);
 
-        $this->assertJsonStringEqualsJsonString('[
-          {
-            "carrierFullName": "Royal Mail Group Ltd",
-            "carrierShortName": "RM",
-            "error": {
-              "errorCause": "A mail item with that barcode cannot be located",
-              "errorCode": "E1142",
-              "errorDescription": "Barcode reference mailPieceId isn not recognised",
-              "errorResolution": "Check barcode and resubmit"
-            },
-            "links": {
-              "events": {
-                "description": "Get events",
-                "href": "/mailpieces/v2/FQ087430672GB/events",
-                "title": "Events"
-              }
-            },
-            "mailPieceId": "090367574000000FE1E1B",
-            "summary": {
-              "destinationCountryCode": "GBR",
-              "destinationCountryName": "United Kingdom of Great Britain and Northern Ireland",
-              "internationalPostalProvider": {
-                "description": "Royal Mail Group Ltd",
-                "title": "Royal Mail Group Ltd",
-                "url": "https://www.royalmail.com/track-your-item"
+        $this->assertJsonStringEqualsJsonString('{
+          "mailPieces": [
+            {
+              "carrierFullName": "Royal Mail Group Ltd",
+              "carrierShortName": "RM",
+              "error": {
+                "errorCause": "A mail item with that barcode cannot be located",
+                "errorCode": "E1142",
+                "errorDescription": "Barcode reference mailPieceId is not recognised",
+                "errorResolution": "Check barcode and resubmit"
               },
-              "lastEventCode": "EVNMI",
-              "lastEventDateTime": "2016-10-20T10:04:00+01:00",
-              "lastEventLocationName": "Stafford DO",
-              "lastEventName": "Forwarded - Mis-sort",
-              "oneDBarcode": "FQ087430672GB",
-              "originCountryCode": "GBR",
-              "originCountryName": "United Kingdom of Great Britain and Northern Ireland",
-              "productCategory": "NON-INTERNATIONAL",
-              "productDescription": "Our guaranteed next day service with tracking and a signature on delivery",
-              "productId": "SD2",
-              "productName": "Special Delivery Guaranteed",
-              "statusCategory": "IN TRANSIT",
-              "statusDescription": "It is being redirected",
-              "statusHelpText": "The item is in transit",
-              "summaryLine": "Item FQ087430672GB was forwarded to the Delivery Office on 2016-10-20.",
-              "uniqueItemId": "090367574000000FE1E1B"
+              "links": {
+                "events": {
+                  "description": "Get events",
+                  "href": "/mailpieces/v2/FQ087430672GB/events",
+                  "title": "Events"
+                }
+              },
+              "mailPieceId": "090367574000000FE1E1B",
+              "summary": {
+                "destinationCountryCode": "GBR",
+                "destinationCountryName": "United Kingdom of Great Britain and Northern Ireland",
+                "internationalPostalProvider": {
+                  "description": "Royal Mail Group Ltd",
+                  "title": "Royal Mail Group Ltd",
+                  "url": "https://www.royalmail.com/track-your-item"
+                },
+                "lastEventCode": "EVNMI",
+                "lastEventDateTime": "2016-10-20T10:04:00+01:00",
+                "lastEventLocationName": "Stafford DO",
+                "lastEventName": "Forwarded - Mis-sort",
+                "oneDBarcode": "FQ087430672GB",
+                "originCountryCode": "GBR",
+                "originCountryName": "United Kingdom of Great Britain and Northern Ireland",
+                "productCategory": "NON-INTERNATIONAL",
+                "productDescription": "Our guaranteed next day service with tracking and a signature on delivery",
+                "productId": "SD2",
+                "productName": "Special Delivery Guaranteed",
+                "statusCategory": "IN TRANSIT",
+                "statusDescription": "It is being redirected",
+                "statusHelpText": "The item is in transit",
+                "summaryLine": "Item FQ087430672GB was forwarded to the Delivery Office on 2016-10-20.",
+                "uniqueItemId": "090367574000000FE1E1B"
+              }
             }
-          }
-        ]', $response->asJson());
+          ]
+        }', $response->asJson());
     }
 
     public function testItRemovesNonAlphanumericCharactersFromTrackingNumbers(): void
@@ -186,59 +196,24 @@ final class SummaryTest extends TestCase
         $client = new Client(['handler' => HandlerStack::create($mock)]);
 
         $response = (new Summary($client, 'client-id', 'client-secret'))
-            ->setTrackingNumbers('!"£$%^&*()12345             6789GB)(*&^%$!', 'JH987654321GB')->get();
+            ->setTrackingNumbers(['!"£$%^&*()12345             6789GB)(*&^%$!', 'JH987654321GB'])
+            ->getResponse();
 
         $this->assertSame('/mailpieces/v2/summary', $mock->getLastRequest()->getUri()->getPath());
         $this->assertSame('mailPieceId=123456789GB,JH987654321GB', $mock->getLastRequest()->getUri()->getQuery());
-        $this->assertSame('090367574000000FE1E1B', $response[0]->getMailPieceId());
+        $this->assertSame('090367574000000FE1E1B', $response->getMailPieces()[0]->getMailPieceId());
     }
 
     public function testItThrowsExceptionWhenResponseIsSuccessfulButJsonIsInvalid(): void
     {
         $mock = new MockHandler([new Response(200, [], 'NOT JSON')]);
-        $client = new Client(['handler' => HandlerStack::create($mock), 'http_errors' => true]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
 
-        $this->expectException(ResponseError::class);
+        $this->expectException(RoyalMailResponseError::class);
         $this->expectExceptionMessage('(200) NOT JSON');
 
         (new Summary($client, 'client-id', 'client-secret'))
-            ->setTrackingNumbers('123456789GB');
-    }
-
-    public function testItThrowsExceptionWhenResponseIsSuccessfulButJsonIsInvalidWhenHttpErrorSetToFalse(): void
-    {
-        $mock = new MockHandler([new Response(200, [], 'NOT JSON')]);
-        $client = new Client(['handler' => HandlerStack::create($mock), 'http_errors' => false]);
-
-        $this->expectException(ResponseError::class);
-        $this->expectExceptionMessage('(200) NOT JSON');
-
-        (new Summary($client, 'client-id', 'client-secret'))
-            ->setTrackingNumbers('123456789GB');
-    }
-
-    public function testItThrowsResponseErrorWhenJsonReturnedFromApiDoesNotContainExpectedInformation(): void
-    {
-        $mock = new MockHandler([new Response(200, [], '{"something":"unexpected"}')]);
-        $client = new Client(['handler' => HandlerStack::create($mock), 'http_errors' => true]);
-
-        $this->expectException(ResponseError::class);
-        $this->expectExceptionMessage('(200) {"something":"unexpected"}');
-
-        (new Summary($client, 'client-id', 'client-secret'))
-            ->setTrackingNumbers('123456789GB');
-    }
-
-    public function testItThrowsResponseErrorWhenJsonReturnedFromApiDoesNotContainExpectedInformationWhenHttpErrorsSetToFalse(): void
-    {
-        $mock = new MockHandler([new Response(200, [], '{"something":"unexpected"}')]);
-        $client = new Client(['handler' => HandlerStack::create($mock), 'http_errors' => true]);
-
-        $this->expectException(ResponseError::class);
-        $this->expectExceptionMessage('(200) {"something":"unexpected"}');
-
-        (new Summary($client, 'client-id', 'client-secret'))
-            ->setTrackingNumbers('123456789GB');
+            ->setTrackingNumbers(['123456789GB']);
     }
 
     public function testItThrowsInvalidCredentialsExceptionWhenGuzzleExceptionsOnAndBadRequestHttpStatus(): void
@@ -256,21 +231,20 @@ final class SummaryTest extends TestCase
                 ]]
             ]))
         ]);
-        $client = new Client(['handler' => HandlerStack::create($mock), 'http_errors' => true]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
 
-        try {
-            (new Summary($client, 'client-id', 'client-secret'))
-                ->setTrackingNumbers('123456789GB');
-        } catch (RequestError $exception) {
-            $this->assertSame('(400) More information', $exception->getMessage());
-            $this->assertSame(400, $exception->getErrorResponse()->getHttpCode());
-            $this->assertSame('HTTP message', $exception->getErrorResponse()->getHttpMessage());
-            $this->assertSame('More information', $exception->getErrorResponse()->getMoreInformation());
-            $this->assertSame('Error code', $exception->getErrorResponse()->getErrors()[0]->getErrorCode());
-            $this->assertSame('Error description', $exception->getErrorResponse()->getErrors()[0]->getErrorDescription());
-            $this->assertSame('Error cause', $exception->getErrorResponse()->getErrors()[0]->getErrorCause());
-            $this->assertSame('Error resolution', $exception->getErrorResponse()->getErrors()[0]->getErrorResolution());
-        }
+        $response = (new Summary($client, 'client-id', 'client-secret'))
+            ->setTrackingNumbers(['123456789GB'])
+            ->getResponse();
+
+        $this->assertSame([], $response->getMailPieces());
+        $this->assertSame(400, $response->getHttpCode());
+        $this->assertSame('HTTP message', $response->getHttpMessage());
+        $this->assertSame('More information', $response->getMoreInformation());
+        $this->assertSame('Error code', $response->getErrors()[0]->getErrorCode());
+        $this->assertSame('Error description', $response->getErrors()[0]->getErrorDescription());
+        $this->assertSame('Error cause', $response->getErrors()[0]->getErrorCause());
+        $this->assertSame('Error resolution', $response->getErrors()[0]->getErrorResolution());
     }
 
     public function testItThrowsExceptionWhenRequestExceptionThrownByGuzzle(): void
@@ -281,13 +255,13 @@ final class SummaryTest extends TestCase
                 new Request('GET', '/mailpieces/v2/123456789GB/events')
             )
         ]);
-        $client = new Client(['handler' => HandlerStack::create($mock), 'http_errors' => true]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
 
-        $this->expectException(RoyalMailServerError::class);
+        $this->expectException(RoyalMailResponseError::class);
         $this->expectExceptionMessage('Error Communicating with Server');
 
         (new Summary($client, 'client-id', 'client-secret'))
-            ->setTrackingNumbers('123456789GB');
+            ->setTrackingNumbers(['123456789GB']);
     }
 
     public function testItThrowsExceptionWhenTransferExceptionThrownByGuzzle(): void
@@ -295,16 +269,264 @@ final class SummaryTest extends TestCase
         $mock = new MockHandler([
             new TransferException('Transfer Exception')
         ]);
-        $client = new Client(['handler' => HandlerStack::create($mock), 'http_errors' => true]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
 
-        $this->expectException(RoyalMailServerError::class);
+        $this->expectException(RoyalMailResponseError::class);
         $this->expectExceptionMessage('Transfer Exception');
 
         (new Summary($client, 'client-id', 'client-secret'))
-            ->setTrackingNumbers('123456789GB');
+            ->setTrackingNumbers(['123456789GB']);
     }
 
-    public function testItThrowsInvalidCredentialsExceptionWhenGuzzleExceptionsOffAndBadRequestHttpStatus(): void
+    public function testItThrowsClientIdNotRegistered(): void
+    {
+        $mock = new MockHandler([
+            new Response(401, [], \json_encode([
+                'httpCode' => 401,
+                'httpMessage' => 'HTTP message',
+                'moreInformation' => 'More information'
+            ]))
+        ]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+
+        try {
+            (new Summary($client, 'client-id', 'client-secret'))
+                ->setTrackingNumbers(['AB0AB0123456789GB']);
+        } catch (ClientIdNotRegistered $exception) {
+            $this->assertSame('More information', $exception->getMessage());
+
+            $response = $exception->getResponse();
+
+            $this->assertSame(401, $response->getHttpCode());
+            $this->assertSame('HTTP message', $response->getHttpMessage());
+            $this->assertSame('More information', $response->getMoreInformation());
+            $this->assertNull($response->getErrors());
+        }
+    }
+
+    public function testItThrowsUriNotFound(): void
+    {
+        $mock = new MockHandler([
+            new Response(404, [], \json_encode([
+                'httpCode' => 404,
+                'httpMessage' => 'HTTP message',
+                'moreInformation' => 'More information'
+            ]))
+        ]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+
+        try {
+            (new Summary($client, 'client-id', 'client-secret'))
+                ->setTrackingNumbers(['AB0AB0123456789GB']);
+        } catch (UriNotFound $exception) {
+            $this->assertSame('More information', $exception->getMessage());
+
+            $response = $exception->getResponse();
+
+            $this->assertSame(404, $response->getHttpCode());
+            $this->assertSame('HTTP message', $response->getHttpMessage());
+            $this->assertSame('More information', $response->getMoreInformation());
+            $this->assertNull($response->getErrors());
+        }
+    }
+
+    public function testItThrowsMethodNotAllowed(): void
+    {
+        $mock = new MockHandler([
+            new Response(405, [], \json_encode([
+                'httpCode' => 405,
+                'httpMessage' => 'HTTP message',
+                'moreInformation' => 'More information'
+            ]))
+        ]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+
+        try {
+            (new Summary($client, 'client-id', 'client-secret'))
+                ->setTrackingNumbers(['AB0AB0123456789GB']);
+        } catch (MethodNotAllowed $exception) {
+            $this->assertSame('More information', $exception->getMessage());
+
+            $response = $exception->getResponse();
+
+            $this->assertSame(405, $response->getHttpCode());
+            $this->assertSame('HTTP message', $response->getHttpMessage());
+            $this->assertSame('More information', $response->getMoreInformation());
+            $this->assertNull($response->getErrors());
+        }
+    }
+
+    public function testItThrowsMaximumParametersExceeded(): void
+    {
+        $mock = new MockHandler([
+            new Response(400, [], \json_encode([
+                'httpCode' => 400,
+                'httpMessage' => 'HTTP message',
+                'errors' => [[
+                    'errorCode' => 'E0013',
+                    'errorDescription' => 'Error description',
+                    'errorResolution' => 'Error resolution'
+                ]]
+            ]))
+        ]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+
+        try {
+            (new Summary($client, 'client-id', 'client-secret'))
+                ->setTrackingNumbers(['AB0AB0123456789GB']);
+        } catch (MaximumParametersExceeded $exception) {
+            $this->assertSame('Error description', $exception->getMessage());
+
+            $response = $exception->getResponse();
+
+            $this->assertSame(400, $response->getHttpCode());
+            $this->assertSame('HTTP message', $response->getHttpMessage());
+            $this->assertNull($response->getMoreInformation());
+            $this->assertSame('E0013', $response->getErrors()[0]->getErrorCode());
+            $this->assertSame('Error description', $response->getErrors()[0]->getErrorDescription());
+            $this->assertNull($response->getErrors()[0]->getErrorCause());
+            $this->assertSame('Error resolution', $response->getErrors()[0]->getErrorResolution());
+        }
+    }
+
+    public function testItThrowsSchemaValidationFailed(): void
+    {
+        $mock = new MockHandler([
+            new Response(400, [], \json_encode([
+                'httpCode' => 400,
+                'httpMessage' => 'HTTP message',
+                'errors' => [[
+                    'errorCode' => 'E0004',
+                    'errorDescription' => 'Error description',
+                    'errorCause' => 'Error cause',
+                    'errorResolution' => 'Error resolution'
+                ]]
+            ]))
+        ]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+
+        try {
+            (new Summary($client, 'client-id', 'client-secret'))
+                ->setTrackingNumbers(['AB0AB0123456789GB']);
+        } catch (SchemaValidationFailed $exception) {
+            $this->assertSame('Error description', $exception->getMessage());
+
+            $response = $exception->getResponse();
+
+            $this->assertSame(400, $response->getHttpCode());
+            $this->assertSame('HTTP message', $response->getHttpMessage());
+            $this->assertNull($response->getMoreInformation());
+            $this->assertSame('E0004', $response->getErrors()[0]->getErrorCode());
+            $this->assertSame('Error description', $response->getErrors()[0]->getErrorDescription());
+            $this->assertSame('Error cause', $response->getErrors()[0]->getErrorCause());
+            $this->assertSame('Error resolution', $response->getErrors()[0]->getErrorResolution());
+        }
+    }
+
+    public function testItThrowsTooManyRequests(): void
+    {
+        $mock = new MockHandler([
+            new Response(429, [], \json_encode([
+                'httpCode' => 429,
+                'httpMessage' => 'HTTP message',
+                'moreInformation' => 'More information',
+                'errors' => [[
+                    'errorCode' => 'E0010',
+                    'errorDescription' => 'Error description',
+                    'errorCause' => 'Error cause',
+                    'errorResolution' => 'Error resolution'
+                ]]
+            ]))
+        ]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+
+        try {
+            (new Summary($client, 'client-id', 'client-secret'))
+                ->setTrackingNumbers(['AB0AB0123456789GB']);
+        } catch (TooManyRequests $exception) {
+            $this->assertSame('Error description', $exception->getMessage());
+
+            $response = $exception->getResponse();
+
+            $this->assertSame(429, $response->getHttpCode());
+            $this->assertSame('HTTP message', $response->getHttpMessage());
+            $this->assertSame('More information', $response->getMoreInformation());
+            $this->assertSame('E0010', $response->getErrors()[0]->getErrorCode());
+            $this->assertSame('Error description', $response->getErrors()[0]->getErrorDescription());
+            $this->assertSame('Error cause', $response->getErrors()[0]->getErrorCause());
+            $this->assertSame('Error resolution', $response->getErrors()[0]->getErrorResolution());
+        }
+    }
+
+    public function testItThrowsInternalServerError(): void
+    {
+        $mock = new MockHandler([
+            new Response(500, [], \json_encode([
+                'httpCode' => 500,
+                'httpMessage' => 'HTTP message',
+                'errors' => [[
+                    'errorCode' => 'E0009',
+                    'errorDescription' => 'Error description',
+                    'errorCause' => 'Error cause',
+                    'errorResolution' => 'Error resolution'
+                ]]
+            ]))
+        ]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+
+        try {
+            (new Summary($client, 'client-id', 'client-secret'))
+                ->setTrackingNumbers(['AB0AB0123456789GB']);
+        } catch (InternalServerError $exception) {
+            $this->assertSame('Error description', $exception->getMessage());
+
+            $response = $exception->getResponse();
+
+            $this->assertSame(500, $response->getHttpCode());
+            $this->assertSame('HTTP message', $response->getHttpMessage());
+            $this->assertNull($response->getMoreInformation());
+            $this->assertSame('E0009', $response->getErrors()[0]->getErrorCode());
+            $this->assertSame('Error description', $response->getErrors()[0]->getErrorDescription());
+            $this->assertSame('Error cause', $response->getErrors()[0]->getErrorCause());
+            $this->assertSame('Error resolution', $response->getErrors()[0]->getErrorResolution());
+        }
+    }
+
+    public function testItThrowsServiceUnavailable(): void
+    {
+        $mock = new MockHandler([
+            new Response(503, [], \json_encode([
+                'httpCode' => 503,
+                'httpMessage' => 'HTTP message',
+                'errors' => [[
+                    'errorCode' => 'E0001',
+                    'errorDescription' => 'Error description',
+                    'errorCause' => 'Error cause',
+                    'errorResolution' => 'Error resolution'
+                ]]
+            ]))
+        ]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+
+        try {
+            (new Summary($client, 'client-id', 'client-secret'))
+                ->setTrackingNumbers(['AB0AB0123456789GB']);
+        } catch (ServiceUnavailable $exception) {
+            $this->assertSame('Error description', $exception->getMessage());
+
+            $response = $exception->getResponse();
+
+            $this->assertSame(503, $response->getHttpCode());
+            $this->assertSame('HTTP message', $response->getHttpMessage());
+            $this->assertNull($response->getMoreInformation());
+            $this->assertSame('E0001', $response->getErrors()[0]->getErrorCode());
+            $this->assertSame('Error description', $response->getErrors()[0]->getErrorDescription());
+            $this->assertSame('Error cause', $response->getErrors()[0]->getErrorCause());
+            $this->assertSame('Error resolution', $response->getErrors()[0]->getErrorResolution());
+        }
+    }
+
+    public function testItReturnsResponseAndDoesNotThrowInvalidBarcodeReferenceOn400Response(): void
     {
         $mock = new MockHandler([
             new Response(400, [], \json_encode([
@@ -312,159 +534,345 @@ final class SummaryTest extends TestCase
                 'httpMessage' => 'HTTP message',
                 'moreInformation' => 'More information',
                 'errors' => [[
-                    'errorCode' => 'Error code',
+                    'errorCode' => 'E1142',
                     'errorDescription' => 'Error description',
                     'errorCause' => 'Error cause',
                     'errorResolution' => 'Error resolution'
                 ]]
             ]))
         ]);
-        $client = new Client(['handler' => HandlerStack::create($mock), 'http_errors' => false]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
 
-        try {
-            (new Summary($client, 'client-id', 'client-secret'))
-                ->setTrackingNumbers('123456789GB');
-        } catch (RequestError $exception) {
-            $this->assertSame('(400) More information', $exception->getMessage());
-            $this->assertSame(400, $exception->getErrorResponse()->getHttpCode());
-            $this->assertSame('HTTP message', $exception->getErrorResponse()->getHttpMessage());
-            $this->assertSame('More information', $exception->getErrorResponse()->getMoreInformation());
-            $this->assertSame('Error code', $exception->getErrorResponse()->getErrors()[0]->getErrorCode());
-            $this->assertSame('Error description', $exception->getErrorResponse()->getErrors()[0]->getErrorDescription());
-            $this->assertSame('Error cause', $exception->getErrorResponse()->getErrors()[0]->getErrorCause());
-            $this->assertSame('Error resolution', $exception->getErrorResponse()->getErrors()[0]->getErrorResolution());
-        }
+        $response = (new Summary($client, 'client-id', 'client-secret', false))
+            ->setTrackingNumbers(['AB0AB0123456789GB'])->getResponse();
+
+        $this->assertSame(400, $response->getHttpCode());
+        $this->assertSame('HTTP message', $response->getHttpMessage());
+        $this->assertSame('More information', $response->getMoreInformation());
+        $this->assertSame('E1142', $response->getErrors()[0]->getErrorCode());
+        $this->assertSame('Error description', $response->getErrors()[0]->getErrorDescription());
+        $this->assertSame('Error cause', $response->getErrors()[0]->getErrorCause());
+        $this->assertSame('Error resolution', $response->getErrors()[0]->getErrorResolution());
     }
 
-    public function testItThrowsInvalidCredentialsExceptionWhenGuzzleExceptionsOnAndUnauthorisedHttpStatus(): void
+    public function testItReturnsResponseAndDoesNotThrowInvalidBarcodeReferenceOn404Response(): void
+    {
+        $mock = new MockHandler([
+            new Response(404, [], \json_encode([
+                'httpCode' => 404,
+                'httpMessage' => 'HTTP message',
+                'moreInformation' => 'More information',
+                'errors' => [[
+                    'errorCode' => 'E1142',
+                    'errorDescription' => 'Error description',
+                    'errorCause' => 'Error cause',
+                    'errorResolution' => 'Error resolution'
+                ]]
+            ]))
+        ]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+
+        $response = (new Summary($client, 'client-id', 'client-secret', false))
+            ->setTrackingNumbers(['AB0AB0123456789GB'])->getResponse();
+
+        $this->assertSame(404, $response->getHttpCode());
+        $this->assertSame('HTTP message', $response->getHttpMessage());
+        $this->assertSame('More information', $response->getMoreInformation());
+        $this->assertSame('E1142', $response->getErrors()[0]->getErrorCode());
+        $this->assertSame('Error description', $response->getErrors()[0]->getErrorDescription());
+        $this->assertSame('Error cause', $response->getErrors()[0]->getErrorCause());
+        $this->assertSame('Error resolution', $response->getErrors()[0]->getErrorResolution());
+    }
+
+    public function testItReturnsResponseAndDoesNotThrowProofOfDeliveryUnavailable(): void
+    {
+        $mock = new MockHandler([
+            new Response(404, [], \json_encode([
+                'httpCode' => 404,
+                'httpMessage' => 'HTTP message',
+                'moreInformation' => 'More information',
+                'errors' => [[
+                    'errorCode' => 'E1144',
+                    'errorDescription' => 'Error description',
+                    'errorCause' => 'Error cause',
+                    'errorResolution' => 'Error resolution'
+                ]]
+            ]))
+        ]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+
+        $response = (new Summary($client, 'client-id', 'client-secret', false))
+            ->setTrackingNumbers(['AB0AB0123456789GB'])->getResponse();
+
+        $this->assertSame(404, $response->getHttpCode());
+        $this->assertSame('HTTP message', $response->getHttpMessage());
+        $this->assertSame('More information', $response->getMoreInformation());
+        $this->assertSame('E1144', $response->getErrors()[0]->getErrorCode());
+        $this->assertSame('Error description', $response->getErrors()[0]->getErrorDescription());
+        $this->assertSame('Error cause', $response->getErrors()[0]->getErrorCause());
+        $this->assertSame('Error resolution', $response->getErrors()[0]->getErrorResolution());
+    }
+
+    public function testItReturnsResponseAndDoesNotThrowProofOfDeliveryUnavailableForProduct(): void
+    {
+        $mock = new MockHandler([
+            new Response(404, [], \json_encode([
+                'httpCode' => 404,
+                'httpMessage' => 'HTTP message',
+                'moreInformation' => 'More information',
+                'errors' => [[
+                    'errorCode' => 'E1145',
+                    'errorDescription' => 'Error description',
+                    'errorCause' => 'Error cause',
+                    'errorResolution' => 'Error resolution'
+                ]]
+            ]))
+        ]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+
+        $response = (new Summary($client, 'client-id', 'client-secret', false))
+            ->setTrackingNumbers(['AB0AB0123456789GB'])->getResponse();
+
+        $this->assertSame(404, $response->getHttpCode());
+        $this->assertSame('HTTP message', $response->getHttpMessage());
+        $this->assertSame('More information', $response->getMoreInformation());
+        $this->assertSame('E1145', $response->getErrors()[0]->getErrorCode());
+        $this->assertSame('Error description', $response->getErrors()[0]->getErrorDescription());
+        $this->assertSame('Error cause', $response->getErrors()[0]->getErrorCause());
+        $this->assertSame('Error resolution', $response->getErrors()[0]->getErrorResolution());
+    }
+
+    public function testItReturnsResponseAndDoesNotThrowTrackingNotSupported(): void
+    {
+        $mock = new MockHandler([
+            new Response(404, [], \json_encode([
+                'httpCode' => 404,
+                'httpMessage' => 'HTTP message',
+                'moreInformation' => 'More information',
+                'errors' => [[
+                    'errorCode' => 'E1283',
+                    'errorDescription' => 'Error description',
+                    'errorCause' => 'Error cause',
+                    'errorResolution' => 'Error resolution'
+                ]]
+            ]))
+        ]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+
+        $response = (new Summary($client, 'client-id', 'client-secret', false))
+            ->setTrackingNumbers(['AB0AB0123456789GB'])->getResponse();
+
+        $this->assertSame(404, $response->getHttpCode());
+        $this->assertSame('HTTP message', $response->getHttpMessage());
+        $this->assertSame('More information', $response->getMoreInformation());
+        $this->assertSame('E1283', $response->getErrors()[0]->getErrorCode());
+        $this->assertSame('Error description', $response->getErrors()[0]->getErrorDescription());
+        $this->assertSame('Error cause', $response->getErrors()[0]->getErrorCause());
+        $this->assertSame('Error resolution', $response->getErrors()[0]->getErrorResolution());
+    }
+
+    public function testItReturnsResponseAndDoesNotThrowDeliveryUpdateNotAvailable(): void
+    {
+        $mock = new MockHandler([
+            new Response(404, [], \json_encode([
+                'httpCode' => 404,
+                'httpMessage' => 'HTTP message',
+                'moreInformation' => 'More information',
+                'errors' => [[
+                    'errorCode' => 'E1284',
+                    'errorDescription' => 'Error description',
+                    'errorCause' => 'Error cause',
+                    'errorResolution' => 'Error resolution'
+                ]]
+            ]))
+        ]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+
+        $response = (new Summary($client, 'client-id', 'client-secret', false))
+            ->setTrackingNumbers(['AB0AB0123456789GB'])->getResponse();
+
+        $this->assertSame(404, $response->getHttpCode());
+        $this->assertSame('HTTP message', $response->getHttpMessage());
+        $this->assertSame('More information', $response->getMoreInformation());
+        $this->assertSame('E1284', $response->getErrors()[0]->getErrorCode());
+        $this->assertSame('Error description', $response->getErrors()[0]->getErrorDescription());
+        $this->assertSame('Error cause', $response->getErrors()[0]->getErrorCause());
+        $this->assertSame('Error resolution', $response->getErrors()[0]->getErrorResolution());
+    }
+
+    public function testItReturnsResponseAndDoesNotThrowUpdateNotAvailable(): void
+    {
+        $mock = new MockHandler([
+            new Response(404, [], \json_encode([
+                'httpCode' => 404,
+                'httpMessage' => 'HTTP message',
+                'moreInformation' => 'More information',
+                'errors' => [[
+                    'errorCode' => 'E1308',
+                    'errorDescription' => 'Error description',
+                    'errorCause' => 'Error cause',
+                    'errorResolution' => 'Error resolution'
+                ]]
+            ]))
+        ]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+
+        $response = (new Summary($client, 'client-id', 'client-secret', false))
+            ->setTrackingNumbers(['AB0AB0123456789GB'])->getResponse();
+
+        $this->assertSame(404, $response->getHttpCode());
+        $this->assertSame('HTTP message', $response->getHttpMessage());
+        $this->assertSame('More information', $response->getMoreInformation());
+        $this->assertSame('E1308', $response->getErrors()[0]->getErrorCode());
+        $this->assertSame('Error description', $response->getErrors()[0]->getErrorDescription());
+        $this->assertSame('Error cause', $response->getErrors()[0]->getErrorCause());
+        $this->assertSame('Error resolution', $response->getErrors()[0]->getErrorResolution());
+    }
+
+    public function testItReturnsResponseAndDoesNotThrowTrackingUnavailableWhenHttpStatusIs200AndHttpCodeIs503(): void
+    {
+        $mock = new MockHandler([
+            new Response(200, [], \json_encode([
+                'httpCode' => 503,
+                'httpMessage' => 'HTTP message',
+                'moreInformation' => 'More information',
+                'errors' => [[
+                    'errorCode' => 'E1307',
+                    'errorDescription' => 'Error description',
+                    'errorResolution' => 'Error resolution'
+                ]]
+            ]))
+        ]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+
+        $response = (new Summary($client, 'client-id', 'client-secret', false))
+            ->setTrackingNumbers(['AB0AB0123456789GB'])->getResponse();
+
+        $this->assertSame(503, $response->getHttpCode());
+        $this->assertSame('HTTP message', $response->getHttpMessage());
+        $this->assertSame('More information', $response->getMoreInformation());
+        $this->assertSame('E1307', $response->getErrors()[0]->getErrorCode());
+        $this->assertSame('Error description', $response->getErrors()[0]->getErrorDescription());
+        $this->assertNull($response->getErrors()[0]->getErrorCause());
+        $this->assertSame('Error resolution', $response->getErrors()[0]->getErrorResolution());
+    }
+
+    public function testItReturnsResponseAndDoesNotThrowClientIdNotRegistered(): void
     {
         $mock = new MockHandler([
             new Response(401, [], \json_encode([
                 'httpCode' => 401,
                 'httpMessage' => 'HTTP message',
-                'moreInformation' => 'More information',
-                'errors' => [[
-                    'errorCode' => 'Error code',
-                    'errorDescription' => 'Error description',
-                    'errorCause' => 'Error cause',
-                    'errorResolution' => 'Error resolution'
-                ]]
+                'moreInformation' => 'More information'
             ]))
         ]);
-        $client = new Client(['handler' => HandlerStack::create($mock), 'http_errors' => true]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
 
-        try {
-            (new Summary($client, 'client-id', 'client-secret'))
-                ->setTrackingNumbers('123456789GB');
-        } catch (InvalidCredentials $exception) {
-            $this->assertSame('(401) More information', $exception->getMessage());
-            $this->assertSame(401, $exception->getErrorResponse()->getHttpCode());
-            $this->assertSame('HTTP message', $exception->getErrorResponse()->getHttpMessage());
-            $this->assertSame('More information', $exception->getErrorResponse()->getMoreInformation());
-            $this->assertSame('Error code', $exception->getErrorResponse()->getErrors()[0]->getErrorCode());
-            $this->assertSame('Error description', $exception->getErrorResponse()->getErrors()[0]->getErrorDescription());
-            $this->assertSame('Error cause', $exception->getErrorResponse()->getErrors()[0]->getErrorCause());
-            $this->assertSame('Error resolution', $exception->getErrorResponse()->getErrors()[0]->getErrorResolution());
-        }
+        $response = (new Summary($client, 'client-id', 'client-secret', false))
+            ->setTrackingNumbers(['AB0AB0123456789GB'])->getResponse();
+
+        $this->assertSame(401, $response->getHttpCode());
+        $this->assertSame('HTTP message', $response->getHttpMessage());
+        $this->assertSame('More information', $response->getMoreInformation());
+        $this->assertNull($response->getErrors());
     }
 
-    public function testItThrowsInvalidCredentialsExceptionWhenGuzzleExceptionsOffAndUnauthorisedHttpStatus(): void
+    public function testItReturnsResponseAndDoesNotThrowUriNotFound(): void
     {
         $mock = new MockHandler([
-            new Response(401, [], \json_encode([
-                'httpCode' => 401,
+            new Response(404, [], \json_encode([
+                'httpCode' => 404,
                 'httpMessage' => 'HTTP message',
-                'moreInformation' => 'More information',
-                'errors' => [[
-                    'errorCode' => 'Error code',
-                    'errorDescription' => 'Error description',
-                    'errorCause' => 'Error cause',
-                    'errorResolution' => 'Error resolution'
-                ]]
+                'moreInformation' => 'More information'
             ]))
         ]);
-        $client = new Client(['handler' => HandlerStack::create($mock), 'http_errors' => false]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
 
-        try {
-            (new Summary($client, 'client-id', 'client-secret'))
-                ->setTrackingNumbers('123456789GB');
-        } catch (InvalidCredentials $exception) {
-            $this->assertSame('(401) More information', $exception->getMessage());
-            $this->assertSame(401, $exception->getErrorResponse()->getHttpCode());
-            $this->assertSame('HTTP message', $exception->getErrorResponse()->getHttpMessage());
-            $this->assertSame('More information', $exception->getErrorResponse()->getMoreInformation());
-            $this->assertSame('Error code', $exception->getErrorResponse()->getErrors()[0]->getErrorCode());
-            $this->assertSame('Error description', $exception->getErrorResponse()->getErrors()[0]->getErrorDescription());
-            $this->assertSame('Error cause', $exception->getErrorResponse()->getErrors()[0]->getErrorCause());
-            $this->assertSame('Error resolution', $exception->getErrorResponse()->getErrors()[0]->getErrorResolution());
-        }
+        $response = (new Summary($client, 'client-id', 'client-secret', false))
+            ->setTrackingNumbers(['AB0AB0123456789GB'])->getResponse();
+
+        $this->assertSame(404, $response->getHttpCode());
+        $this->assertSame('HTTP message', $response->getHttpMessage());
+        $this->assertSame('More information', $response->getMoreInformation());
+        $this->assertNull($response->getErrors());
     }
 
-    public function testItThrowsInvalidCredentialsExceptionWhenGuzzleExceptionsOnAndForbiddenHttpStatus(): void
+    public function testItReturnsResponseAndDoesNotThrowMethodNotAllowed(): void
     {
         $mock = new MockHandler([
-            new Response(403, [], \json_encode([
-                'httpCode' => 403,
+            new Response(405, [], \json_encode([
+                'httpCode' => 405,
                 'httpMessage' => 'HTTP message',
-                'moreInformation' => 'More information',
-                'errors' => [[
-                    'errorCode' => 'Error code',
-                    'errorDescription' => 'Error description',
-                    'errorCause' => 'Error cause',
-                    'errorResolution' => 'Error resolution'
-                ]]
+                'moreInformation' => 'More information'
             ]))
         ]);
-        $client = new Client(['handler' => HandlerStack::create($mock), 'http_errors' => true]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
 
-        try {
-            (new Summary($client, 'client-id', 'client-secret'))
-                ->setTrackingNumbers('123456789GB');
-        } catch (Forbidden $exception) {
-            $this->assertSame('(403) More information', $exception->getMessage());
-            $this->assertSame(403, $exception->getErrorResponse()->getHttpCode());
-            $this->assertSame('HTTP message', $exception->getErrorResponse()->getHttpMessage());
-            $this->assertSame('More information', $exception->getErrorResponse()->getMoreInformation());
-            $this->assertSame('Error code', $exception->getErrorResponse()->getErrors()[0]->getErrorCode());
-            $this->assertSame('Error description', $exception->getErrorResponse()->getErrors()[0]->getErrorDescription());
-            $this->assertSame('Error cause', $exception->getErrorResponse()->getErrors()[0]->getErrorCause());
-            $this->assertSame('Error resolution', $exception->getErrorResponse()->getErrors()[0]->getErrorResolution());
-        }
+        $response = (new Summary($client, 'client-id', 'client-secret', false))
+            ->setTrackingNumbers(['AB0AB0123456789GB'])->getResponse();
+
+        $this->assertSame(405, $response->getHttpCode());
+        $this->assertSame('HTTP message', $response->getHttpMessage());
+        $this->assertSame('More information', $response->getMoreInformation());
+        $this->assertNull($response->getErrors());
     }
 
-    public function testItThrowsInvalidCredentialsExceptionWhenGuzzleExceptionsOffAndForbiddenHttpStatus(): void
+    public function testItReturnsResponseAndDoesNotThrowMaximumParametersExceeded(): void
     {
         $mock = new MockHandler([
-            new Response(403, [], \json_encode([
-                'httpCode' => 403,
+            new Response(400, [], \json_encode([
+                'httpCode' => 400,
                 'httpMessage' => 'HTTP message',
-                'moreInformation' => 'More information',
                 'errors' => [[
-                    'errorCode' => 'Error code',
+                    'errorCode' => 'E0013',
+                    'errorDescription' => 'Error description',
+                    'errorResolution' => 'Error resolution'
+                ]]
+            ]))
+        ]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+
+        $response = (new Summary($client, 'client-id', 'client-secret', false))
+            ->setTrackingNumbers(['AB0AB0123456789GB'])->getResponse();
+
+        $this->assertSame(400, $response->getHttpCode());
+        $this->assertSame('HTTP message', $response->getHttpMessage());
+        $this->assertNull($response->getMoreInformation());
+        $this->assertSame('E0013', $response->getErrors()[0]->getErrorCode());
+        $this->assertSame('Error description', $response->getErrors()[0]->getErrorDescription());
+        $this->assertNull($response->getErrors()[0]->getErrorCause());
+        $this->assertSame('Error resolution', $response->getErrors()[0]->getErrorResolution());
+    }
+
+    public function testItReturnsResponseAndDoesNotThrowSchemaValidationFailed(): void
+    {
+        $mock = new MockHandler([
+            new Response(400, [], \json_encode([
+                'httpCode' => 400,
+                'httpMessage' => 'HTTP message',
+                'errors' => [[
+                    'errorCode' => 'E0004',
                     'errorDescription' => 'Error description',
                     'errorCause' => 'Error cause',
                     'errorResolution' => 'Error resolution'
                 ]]
             ]))
         ]);
-        $client = new Client(['handler' => HandlerStack::create($mock), 'http_errors' => false]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
 
-        try {
-            (new Summary($client, 'client-id', 'client-secret'))
-                ->setTrackingNumbers('123456789GB');
-        } catch (Forbidden $exception) {
-            $this->assertSame('(403) More information', $exception->getMessage());
-            $this->assertSame(403, $exception->getErrorResponse()->getHttpCode());
-            $this->assertSame('HTTP message', $exception->getErrorResponse()->getHttpMessage());
-            $this->assertSame('More information', $exception->getErrorResponse()->getMoreInformation());
-            $this->assertSame('Error code', $exception->getErrorResponse()->getErrors()[0]->getErrorCode());
-            $this->assertSame('Error description', $exception->getErrorResponse()->getErrors()[0]->getErrorDescription());
-            $this->assertSame('Error cause', $exception->getErrorResponse()->getErrors()[0]->getErrorCause());
-            $this->assertSame('Error resolution', $exception->getErrorResponse()->getErrors()[0]->getErrorResolution());
-        }
+        $response = (new Summary($client, 'client-id', 'client-secret', false))
+            ->setTrackingNumbers(['AB0AB0123456789GB'])->getResponse();
+
+        $this->assertSame(400, $response->getHttpCode());
+        $this->assertSame('HTTP message', $response->getHttpMessage());
+        $this->assertNull($response->getMoreInformation());
+        $this->assertSame('E0004', $response->getErrors()[0]->getErrorCode());
+        $this->assertSame('Error description', $response->getErrors()[0]->getErrorDescription());
+        $this->assertSame('Error cause', $response->getErrors()[0]->getErrorCause());
+        $this->assertSame('Error resolution', $response->getErrors()[0]->getErrorResolution());
     }
 
-    public function testItThrowsInvalidCredentialsExceptionWhenGuzzleExceptionsOnAndTooManyRequestsHttpStatus(): void
+    public function testItReturnsResponseAndDoesNotThrowTooManyRequests(): void
     {
         $mock = new MockHandler([
             new Response(429, [], \json_encode([
@@ -472,124 +880,81 @@ final class SummaryTest extends TestCase
                 'httpMessage' => 'HTTP message',
                 'moreInformation' => 'More information',
                 'errors' => [[
-                    'errorCode' => 'Error code',
+                    'errorCode' => 'E0010',
                     'errorDescription' => 'Error description',
                     'errorCause' => 'Error cause',
                     'errorResolution' => 'Error resolution'
                 ]]
             ]))
         ]);
-        $client = new Client(['handler' => HandlerStack::create($mock), 'http_errors' => true]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
 
-        try {
-            (new Summary($client, 'client-id', 'client-secret'))
-                ->setTrackingNumbers('123456789GB');
-        } catch (RequestLimitExceeded $exception) {
-            $this->assertSame('(429) More information', $exception->getMessage());
-            $this->assertSame(429, $exception->getErrorResponse()->getHttpCode());
-            $this->assertSame('HTTP message', $exception->getErrorResponse()->getHttpMessage());
-            $this->assertSame('More information', $exception->getErrorResponse()->getMoreInformation());
-            $this->assertSame('Error code', $exception->getErrorResponse()->getErrors()[0]->getErrorCode());
-            $this->assertSame('Error description', $exception->getErrorResponse()->getErrors()[0]->getErrorDescription());
-            $this->assertSame('Error cause', $exception->getErrorResponse()->getErrors()[0]->getErrorCause());
-            $this->assertSame('Error resolution', $exception->getErrorResponse()->getErrors()[0]->getErrorResolution());
-        }
+        $response = (new Summary($client, 'client-id', 'client-secret', false))
+            ->setTrackingNumbers(['AB0AB0123456789GB'])->getResponse();
+
+        $this->assertSame(429, $response->getHttpCode());
+        $this->assertSame('HTTP message', $response->getHttpMessage());
+        $this->assertSame('More information', $response->getMoreInformation());
+        $this->assertSame('E0010', $response->getErrors()[0]->getErrorCode());
+        $this->assertSame('Error description', $response->getErrors()[0]->getErrorDescription());
+        $this->assertSame('Error cause', $response->getErrors()[0]->getErrorCause());
+        $this->assertSame('Error resolution', $response->getErrors()[0]->getErrorResolution());
     }
 
-    public function testItThrowsInvalidCredentialsExceptionWhenGuzzleExceptionsOffAndTooManyRequestsHttpStatus(): void
-    {
-        $mock = new MockHandler([
-            new Response(429, [], \json_encode([
-                'httpCode' => 429,
-                'httpMessage' => 'HTTP message',
-                'moreInformation' => 'More information',
-                'errors' => [[
-                    'errorCode' => 'Error code',
-                    'errorDescription' => 'Error description',
-                    'errorCause' => 'Error cause',
-                    'errorResolution' => 'Error resolution'
-                ]]
-            ]))
-        ]);
-        $client = new Client(['handler' => HandlerStack::create($mock), 'http_errors' => false]);
-
-        try {
-            (new Summary($client, 'client-id', 'client-secret'))
-                ->setTrackingNumbers('123456789GB');
-        } catch (RequestLimitExceeded $exception) {
-            $this->assertSame('(429) More information', $exception->getMessage());
-            $this->assertSame(429, $exception->getErrorResponse()->getHttpCode());
-            $this->assertSame('HTTP message', $exception->getErrorResponse()->getHttpMessage());
-            $this->assertSame('More information', $exception->getErrorResponse()->getMoreInformation());
-            $this->assertSame('Error code', $exception->getErrorResponse()->getErrors()[0]->getErrorCode());
-            $this->assertSame('Error description', $exception->getErrorResponse()->getErrors()[0]->getErrorDescription());
-            $this->assertSame('Error cause', $exception->getErrorResponse()->getErrors()[0]->getErrorCause());
-            $this->assertSame('Error resolution', $exception->getErrorResponse()->getErrors()[0]->getErrorResolution());
-        }
-    }
-
-    public function testItThrowsInvalidCredentialsExceptionWhenGuzzleExceptionsOnAndServerErrorHttpStatus(): void
+    public function testItReturnsResponseAndDoesNotThrowInternalServerError(): void
     {
         $mock = new MockHandler([
             new Response(500, [], \json_encode([
                 'httpCode' => 500,
                 'httpMessage' => 'HTTP message',
-                'moreInformation' => 'More information',
                 'errors' => [[
-                    'errorCode' => 'Error code',
+                    'errorCode' => 'E0009',
                     'errorDescription' => 'Error description',
                     'errorCause' => 'Error cause',
                     'errorResolution' => 'Error resolution'
                 ]]
             ]))
         ]);
-        $client = new Client(['handler' => HandlerStack::create($mock), 'http_errors' => true]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
 
-        try {
-            (new Summary($client, 'client-id', 'client-secret'))
-                ->setTrackingNumbers('123456789GB');
-        } catch (RoyalMailServerError $exception) {
-            $this->assertSame('(500) More information', $exception->getMessage());
-            $this->assertSame(500, $exception->getErrorResponse()->getHttpCode());
-            $this->assertSame('HTTP message', $exception->getErrorResponse()->getHttpMessage());
-            $this->assertSame('More information', $exception->getErrorResponse()->getMoreInformation());
-            $this->assertSame('Error code', $exception->getErrorResponse()->getErrors()[0]->getErrorCode());
-            $this->assertSame('Error description', $exception->getErrorResponse()->getErrors()[0]->getErrorDescription());
-            $this->assertSame('Error cause', $exception->getErrorResponse()->getErrors()[0]->getErrorCause());
-            $this->assertSame('Error resolution', $exception->getErrorResponse()->getErrors()[0]->getErrorResolution());
-        }
+        $response = (new Summary($client, 'client-id', 'client-secret', false))
+            ->setTrackingNumbers(['AB0AB0123456789GB'])->getResponse();
+
+        $this->assertSame(500, $response->getHttpCode());
+        $this->assertSame('HTTP message', $response->getHttpMessage());
+        $this->assertNull($response->getMoreInformation());
+        $this->assertSame('E0009', $response->getErrors()[0]->getErrorCode());
+        $this->assertSame('Error description', $response->getErrors()[0]->getErrorDescription());
+        $this->assertSame('Error cause', $response->getErrors()[0]->getErrorCause());
+        $this->assertSame('Error resolution', $response->getErrors()[0]->getErrorResolution());
     }
 
-    public function testItThrowsInvalidCredentialsExceptionWhenGuzzleExceptionsOffAndServerErrorHttpStatus(): void
+    public function testItReturnsResponseAndDoesNotThrowServiceUnavailable(): void
     {
         $mock = new MockHandler([
-            new Response(500, [], \json_encode([
-                'httpCode' => 500,
+            new Response(503, [], \json_encode([
+                'httpCode' => 503,
                 'httpMessage' => 'HTTP message',
-                'moreInformation' => 'More information',
                 'errors' => [[
-                    'errorCode' => 'Error code',
+                    'errorCode' => 'E0001',
                     'errorDescription' => 'Error description',
                     'errorCause' => 'Error cause',
                     'errorResolution' => 'Error resolution'
                 ]]
             ]))
         ]);
-        $client = new Client(['handler' => HandlerStack::create($mock), 'http_errors' => false]);
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
 
-        try {
-            (new Summary($client, 'client-id', 'client-secret'))
-                ->setTrackingNumbers('123456789GB');
-        } catch (RoyalMailServerError $exception) {
-            $this->assertSame('(500) More information', $exception->getMessage());
-            $this->assertSame(500, $exception->getErrorResponse()->getHttpCode());
-            $this->assertSame('HTTP message', $exception->getErrorResponse()->getHttpMessage());
-            $this->assertSame('More information', $exception->getErrorResponse()->getMoreInformation());
-            $this->assertSame('Error code', $exception->getErrorResponse()->getErrors()[0]->getErrorCode());
-            $this->assertSame('Error description', $exception->getErrorResponse()->getErrors()[0]->getErrorDescription());
-            $this->assertSame('Error cause', $exception->getErrorResponse()->getErrors()[0]->getErrorCause());
-            $this->assertSame('Error resolution', $exception->getErrorResponse()->getErrors()[0]->getErrorResolution());
-        }
+        $response = (new Summary($client, 'client-id', 'client-secret', false))
+            ->setTrackingNumbers(['AB0AB0123456789GB'])->getResponse();
+
+        $this->assertSame(503, $response->getHttpCode());
+        $this->assertSame('HTTP message', $response->getHttpMessage());
+        $this->assertNull($response->getMoreInformation());
+        $this->assertSame('E0001', $response->getErrors()[0]->getErrorCode());
+        $this->assertSame('Error description', $response->getErrors()[0]->getErrorDescription());
+        $this->assertSame('Error cause', $response->getErrors()[0]->getErrorCause());
+        $this->assertSame('Error resolution', $response->getErrors()[0]->getErrorResolution());
     }
 
     private function mockResponse(): string
@@ -635,7 +1000,7 @@ final class SummaryTest extends TestCase
               },
               "error": {
                 "errorCode": "E1142",
-                "errorDescription": "Barcode reference mailPieceId isn not recognised",
+                "errorDescription": "Barcode reference mailPieceId is not recognised",
                 "errorCause": "A mail item with that barcode cannot be located",
                 "errorResolution": "Check barcode and resubmit"
               }

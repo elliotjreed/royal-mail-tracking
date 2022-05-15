@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ElliotJReed\RoyalMail\Tracking\Entity;
+namespace ElliotJReed\RoyalMail\Tracking\Entity\Event;
 
 use DateTimeImmutable;
 
@@ -13,7 +13,7 @@ final class EstimatedDelivery
     private ?DateTimeImmutable $endOfEstimatedWindow = null;
 
     /**
-     * @return \DateTimeImmutable|null Date of the estimated delivery window
+     * @return \DateTimeImmutable|null date of the estimated delivery window
      */
     public function getDate(): ?DateTimeImmutable
     {
@@ -21,9 +21,9 @@ final class EstimatedDelivery
     }
 
     /**
-     * @param \DateTimeImmutable|null $date Date of the estimated delivery window
+     * @param \DateTimeImmutable|null $date date of the estimated delivery window
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\EstimatedDelivery
      */
     public function setDate(?DateTimeImmutable $date): self
     {
@@ -35,7 +35,7 @@ final class EstimatedDelivery
     }
 
     /**
-     * @return \DateTimeImmutable|null Start of the estimated delivery window
+     * @return \DateTimeImmutable|null start of the estimated delivery window
      */
     public function getStartOfEstimatedWindow(): ?DateTimeImmutable
     {
@@ -43,9 +43,9 @@ final class EstimatedDelivery
     }
 
     /**
-     * @param \DateTimeImmutable|null $startOfEstimatedWindow Start of the estimated delivery window
+     * @param \DateTimeImmutable|null $startOfEstimatedWindow start of the estimated delivery window
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\EstimatedDelivery
      */
     public function setStartOfEstimatedWindow(?DateTimeImmutable $startOfEstimatedWindow): self
     {
@@ -55,7 +55,7 @@ final class EstimatedDelivery
     }
 
     /**
-     * @return \DateTimeImmutable|null End of the estimated delivery window
+     * @return \DateTimeImmutable|null end of the estimated delivery window
      */
     public function getEndOfEstimatedWindow(): ?DateTimeImmutable
     {
@@ -63,9 +63,9 @@ final class EstimatedDelivery
     }
 
     /**
-     * @param \DateTimeImmutable|null $endOfEstimatedWindow End of the estimated delivery window
+     * @param \DateTimeImmutable|null $endOfEstimatedWindow end of the estimated delivery window
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\EstimatedDelivery
      */
     public function setEndOfEstimatedWindow(?DateTimeImmutable $endOfEstimatedWindow): self
     {

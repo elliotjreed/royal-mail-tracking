@@ -6,89 +6,87 @@ namespace ElliotJReed\RoyalMail\Tracking\Entity;
 
 final class ErrorResponse
 {
-    private ?int $httpCode = null;
-    private ?string $httpMessage = null;
-    private ?string $moreInformation = null;
-    private array $errors = [];
+    private ?string $errorCode = null;
+    private ?string $errorDescription = null;
+    private ?string $errorCause = null;
+    private ?string $errorResolution = null;
 
     /**
-     * @return int|null HTTP error code
+     * @return string|null code associated with the error condition
      */
-    public function getHttpCode(): ?int
+    public function getErrorCode(): ?string
     {
-        return $this->httpCode;
+        return $this->errorCode;
     }
 
     /**
-     * @param int|null $httpCode HTTP error code
+     * @param string|null $errorCode code associated with the error condition
      *
      * @return \ElliotJReed\RoyalMail\Tracking\Entity\ErrorResponse
      */
-    public function setHttpCode(?int $httpCode): self
+    public function setErrorCode(?string $errorCode): self
     {
-        $this->httpCode = $httpCode;
+        $this->errorCode = $errorCode;
 
         return $this;
     }
 
     /**
-     * @return string|null HTTP error code description
+     * @return string|null description of the error condition
      */
-    public function getHttpMessage(): ?string
+    public function getErrorDescription(): ?string
     {
-        return $this->httpMessage;
+        return $this->errorDescription;
     }
 
     /**
-     * @param string|null $httpMessage HTTP error code description
+     * @param string|null $errorDescription description of the error condition
      *
      * @return \ElliotJReed\RoyalMail\Tracking\Entity\ErrorResponse
      */
-    public function setHttpMessage(?string $httpMessage): self
+    public function setErrorDescription(?string $errorDescription): self
     {
-        $this->httpMessage = $httpMessage;
+        $this->errorDescription = $errorDescription;
 
         return $this;
     }
 
     /**
-     * @return string|null Information relating to the error condition
+     * @return string|null cause of the error (if known)
      */
-    public function getMoreInformation(): ?string
+    public function getErrorCause(): ?string
     {
-        return $this->moreInformation;
+        return $this->errorCause;
     }
 
     /**
-     * @param string|null $moreInformation Information relating to the error condition
+     * @param string|null $errorCause cause of the error (if known)
      *
      * @return \ElliotJReed\RoyalMail\Tracking\Entity\ErrorResponse
      */
-    public function setMoreInformation(?string $moreInformation): self
+    public function setErrorCause(?string $errorCause): self
     {
-        $this->moreInformation = $moreInformation;
+        $this->errorCause = $errorCause;
 
         return $this;
     }
 
     /**
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\ErrorResponseError[] Array of ErrorResponseErrors
-     *                                                                     containing error information
+     * @return string|null description of the resolution and action required to correct the error
      */
-    public function getErrors(): array
+    public function getErrorResolution(): ?string
     {
-        return $this->errors;
+        return $this->errorResolution;
     }
 
     /**
-     * @param \ElliotJReed\RoyalMail\Tracking\Entity\ErrorResponseError[] Array of ErrorResponseErrors
-     *                                                                    containing error information
+     * @param string|null $errorResolution description of the resolution and action required to correct the error
      *
      * @return \ElliotJReed\RoyalMail\Tracking\Entity\ErrorResponse
      */
-    public function setErrors(array $errors): self
+    public function setErrorResolution(?string $errorResolution): self
     {
-        $this->errors = $errors;
+        $this->errorResolution = $errorResolution;
 
         return $this;
     }

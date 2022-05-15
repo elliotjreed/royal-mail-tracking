@@ -4,13 +4,38 @@ declare(strict_types=1);
 
 namespace ElliotJReed\RoyalMail\Tracking;
 
-use ElliotJReed\RoyalMail\Tracking\Entity\MailPiece;
-use ElliotJReed\RoyalMail\Tracking\Exception\ResponseError;
+use DateTimeImmutable;
+use ElliotJReed\RoyalMail\Tracking\Entity\Link;
+use ElliotJReed\RoyalMail\Tracking\Entity\Signature\Links;
+use ElliotJReed\RoyalMail\Tracking\Entity\Signature\MailPieces;
+use ElliotJReed\RoyalMail\Tracking\Entity\Signature\Response;
+use ElliotJReed\RoyalMail\Tracking\Entity\Signature\Signature as SignatureEntity;
+use ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailResponseError;
+use Exception;
+use GuzzleHttp\ClientInterface;
 use JsonException;
 
 class Signature extends Track
 {
-    private ?MailPiece $mailPiece = null;
+    private Response $response;
+
+    public function __construct(
+        ClientInterface $httpClient,
+        string $royalMailClientId,
+        string $royalMailClientSecret,
+        bool $throwExceptionOnTrackingError = true,
+        bool $throwExceptionOnTechnicalError = true
+    ) {
+        parent::__construct(
+            $httpClient,
+            $royalMailClientId,
+            $royalMailClientSecret,
+            $throwExceptionOnTrackingError,
+            $throwExceptionOnTechnicalError
+        );
+
+        $this->response = new Response();
+    }
 
     /**
      * The signature operation provides the details captured at the point of delivery as proof that delivery
@@ -21,50 +46,127 @@ class Signature extends Track
      *
      * @return $this
      *
-     * @throws \ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailError
+     * @throws \ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailTechnicalError Thrown when a technical error occurs
+     *                                                                           (eg. invalid Client ID or Client
+     *                                                                           secret). RoyalMailTechnicalError
+     *                                                                           exceptions can be "turned off" by
+     *                                                                           setting $throwExceptionOnTechnicalError
+     *                                                                           to false in the constructor.
+     * @throws \ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailTrackingError Thrown when a business/tracking error
+     *                                                                          occurs (eg. invalid tracking number).
+     *                                                                          RoyalMailTrackingError exceptions can
+     *                                                                          be "turned off" by setting
+     *                                                                          $throwExceptionOnTrackingError to false
+     *                                                                          in the constructor.
+     * @throws \ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailResponseError Thrown in the event of an API server
+     *                                                                          outage or critical error
+     *                                                                          (eg. DNS failure).
      */
     public function setTrackingNumber(string $trackingNumber): self
     {
-        $response = $this->request(
+        $apiResponse = $this->request(
             'https://api.royalmail.net/mailpieces/v2/' . $this->sanitiseTrackingId($trackingNumber) . '/signature'
         );
 
-        $statusCode = $response->getStatusCode();
-        $contents = $response->getBody()->getContents();
-
-        if (200 !== $statusCode) {
-            $this->handleError($statusCode, $contents);
-        }
+        $statusCode = $apiResponse->getStatusCode();
+        $contents = $apiResponse->getBody()->getContents();
 
         try {
             $decoded = \json_decode($contents, true, 512, \JSON_THROW_ON_ERROR);
         } catch (JsonException) {
-            throw new ResponseError('(' . $statusCode . ') ' . $contents);
+            throw new RoyalMailResponseError('(' . $statusCode . ') ' . $contents);
         }
 
-        if (!isset($decoded['mailPieces'])) {
-            throw new ResponseError('(' . $statusCode . ') ' . $contents);
+        if (isset($decoded['mailPieces'])) {
+            $this->response->setMailPieces($this->buildMailPieces($decoded['mailPieces']));
         }
 
-        $this->mailPiece = $this->buildMailPiece($decoded['mailPieces']);
+        /*
+         * httpCode will only be populated in the event of an error condition.
+         */
+        if (isset($decoded['httpCode']) || !empty($decoded['errors'])) {
+            $this->handleErrors($this->response, $decoded);
+        }
 
         return $this;
     }
 
     /**
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\MailPiece|null The MailPiece object, or null when
-     *                                                               setTrackingNumber method has not been called
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Signature\Response the Royal Mail response object
      */
-    public function get(): ?MailPiece
+    public function getResponse(): Response
     {
-        return $this->mailPiece;
+        return $this->response;
     }
 
     /**
-     * @return string The MailPiece signature object as a JSON string
+     * @return string the Response object as a JSON string, containing Mailpieces or errors
      */
     public function asJson(): string
     {
-        return $this->serialiseToJson($this->mailPiece);
+        return $this->serialiseToJson($this->response);
+    }
+
+    private function buildMailPieces(array $mailPiece): MailPieces
+    {
+        $tracking = (new MailPieces())
+            ->setMailPieceId($mailPiece['mailPieceId'])
+            ->setCarrierShortName($mailPiece['carrierShortName'] ?? null)
+            ->setCarrierFullName($mailPiece['carrierFullName'] ?? null);
+
+        if (isset($mailPiece['signature'])) {
+            $tracking->setSignature($this->buildSignature($mailPiece['signature']));
+        }
+
+        if (isset($mailPiece['links'])) {
+            $tracking->setLinks($this->buildLinks($mailPiece));
+        }
+
+        return $tracking;
+    }
+
+    private function buildSignature(array $signatureArray): SignatureEntity
+    {
+        $signature = (new SignatureEntity())
+            ->setRecipientName($signatureArray['recipientName'] ?? null)
+            ->setImageId($signatureArray['imageId'] ?? null)
+            ->setImage($signatureArray['image'] ?? null)
+            ->setHeight($signatureArray['height'] ?? null)
+            ->setWidth($signatureArray['width'] ?? null)
+            ->setImageFormat($signatureArray['imageFormat'] ?? null)
+            ->setUniqueItemId($signatureArray['uniqueItemId'] ?? null)
+            ->setOneDBarcode($signatureArray['oneDBarcode'] ?? null);
+
+        try {
+            $signature->setSignatureDateTime(new DateTimeImmutable($signatureArray['signatureDateTime']));
+        } catch (Exception) {
+        }
+
+        return $signature;
+    }
+
+    private function buildLinks(array $mailPiece): Links
+    {
+        $trackingLinks = new Links();
+
+        if (isset($mailPiece['links']['summary'])) {
+            $summaryLink = $mailPiece['links']['summary'];
+
+            $trackingLinks->setSummary((new Link())
+                ->setHref($summaryLink['href'] ?? null)
+                ->setTitle($summaryLink['title'] ?? null)
+                ->setDescription($summaryLink['description'] ?? null));
+        }
+
+        if (isset($mailPiece['links']['events'])) {
+            $events = $mailPiece['links']['events'];
+
+            $trackingLinks->setEvents((new Link())
+                ->setHref($events['href'] ?? null)
+                ->setTitle($events['title'] ?? null)
+                ->setDescription($events['description'] ?? null));
+        }
+
+        return $trackingLinks;
     }
 }

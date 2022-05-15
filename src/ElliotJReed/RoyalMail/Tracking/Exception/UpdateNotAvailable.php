@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace ElliotJReed\RoyalMail\Tracking\Exception;
 
-final class RequestError extends RoyalMailError
+final class UpdateNotAvailable extends RoyalMailTrackingError
 {
-    protected $message = 'Bad request.';
 }

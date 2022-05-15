@@ -5,12 +5,7 @@ declare(strict_types=1);
 use PhpCsFixer\Fixer\FunctionNotation\NativeFunctionInvocationFixer;
 
 $finder = (new PhpCsFixer\Finder())
-    ->in(__DIR__)
-    ->exclude('.github')
-    ->exclude('node_modules')
-    ->exclude('var')
-    ->exclude('coverage')
-    ->exclude('vendor');
+    ->in([__DIR__ . '/src', __DIR__ . '/tests']);
 
 return (new PhpCsFixer\Config())
     ->setRules([
@@ -18,6 +13,7 @@ return (new PhpCsFixer\Config())
         '@PSR12:risky' => true,
         '@Symfony' => true,
         '@Symfony:risky' => true,
+        'phpdoc_align' => ['align' => 'left'],
         'trailing_comma_in_multiline' => [],
         'multiline_whitespace_before_semicolons' => ['strategy' => 'no_multi_line'],
         'concat_space' => ['spacing' => 'one'],

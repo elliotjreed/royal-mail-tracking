@@ -4,23 +4,28 @@ declare(strict_types=1);
 
 namespace ElliotJReed\RoyalMail\Tracking\Exception;
 
-use ElliotJReed\RoyalMail\Tracking\Entity\ErrorResponse;
+use ElliotJReed\RoyalMail\Tracking\Entity\Response;
 use Exception;
+use Throwable;
 
 abstract class RoyalMailError extends Exception
 {
-    protected $message = 'Royal Mail error.';
-    private ?ErrorResponse $errorResponse = null;
+    protected ?Response $response = null;
 
-    public function setErrorResponse(?ErrorResponse $errorResponse): self
+    public function __construct(string $message = '', int $code = 0, ?Throwable $previous = null)
     {
-        $this->errorResponse = $errorResponse;
+        parent::__construct($message, $code, $previous);
+    }
+
+    public function setResponse(Response $response): self
+    {
+        $this->response = $response;
 
         return $this;
     }
 
-    public function getErrorResponse(): ?ErrorResponse
+    public function getResponse(): Response
     {
-        return $this->errorResponse;
+        return $this->response;
     }
 }

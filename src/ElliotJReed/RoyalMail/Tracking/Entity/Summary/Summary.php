@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace ElliotJReed\RoyalMail\Tracking\Entity;
+namespace ElliotJReed\RoyalMail\Tracking\Entity\Summary;
 
 use DateTimeImmutable;
+use ElliotJReed\RoyalMail\Tracking\Entity\InternationalPostalProvider;
 
 final class Summary
 {
@@ -39,7 +40,7 @@ final class Summary
     /**
      * @param string|null $uniqueItemId 2D barcode for the mail piece
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary
      */
     public function setUniqueItemId(?string $uniqueItemId): self
     {
@@ -59,7 +60,7 @@ final class Summary
     /**
      * @param string|null $oneDBarcode 1D barcode for the mail piece
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary
      */
     public function setOneDBarcode(?string $oneDBarcode): self
     {
@@ -69,7 +70,7 @@ final class Summary
     }
 
     /**
-     * @return string|null Identifier for the tracked product
+     * @return string|null identifier for the tracked product
      */
     public function getProductId(): ?string
     {
@@ -77,9 +78,9 @@ final class Summary
     }
 
     /**
-     * @param string|null $productId Identifier for the tracked product
+     * @param string|null $productId identifier for the tracked product
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary
      */
     public function setProductId(?string $productId): self
     {
@@ -89,7 +90,7 @@ final class Summary
     }
 
     /**
-     * @return string|null Name of the tracked product
+     * @return string|null name of the tracked product
      */
     public function getProductName(): ?string
     {
@@ -97,9 +98,9 @@ final class Summary
     }
 
     /**
-     * @param string|null $productName Name of the tracked product
+     * @param string|null $productName name of the tracked product
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary
      */
     public function setProductName(?string $productName): self
     {
@@ -109,7 +110,7 @@ final class Summary
     }
 
     /**
-     * @return string|null Description of tracked product
+     * @return string|null description of tracked product
      */
     public function getProductDescription(): ?string
     {
@@ -117,9 +118,9 @@ final class Summary
     }
 
     /**
-     * @param string|null $productDescription Description of tracked product
+     * @param string|null $productDescription description of tracked product
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary
      */
     public function setProductDescription(?string $productDescription): self
     {
@@ -129,7 +130,7 @@ final class Summary
     }
 
     /**
-     * @return string|null Category for tracked product
+     * @return string|null category for tracked product
      */
     public function getProductCategory(): ?string
     {
@@ -137,9 +138,9 @@ final class Summary
     }
 
     /**
-     * @param string|null $productCategory Category for tracked product
+     * @param string|null $productCategory category for tracked product
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary
      */
     public function setProductCategory(?string $productCategory): self
     {
@@ -149,7 +150,7 @@ final class Summary
     }
 
     /**
-     * @return string|null Destination country code
+     * @return string|null destination country code
      */
     public function getDestinationCountryCode(): ?string
     {
@@ -157,9 +158,9 @@ final class Summary
     }
 
     /**
-     * @param string|null $destinationCountryCode Destination country code
+     * @param string|null $destinationCountryCode destination country code
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary
      */
     public function setDestinationCountryCode(?string $destinationCountryCode): self
     {
@@ -169,7 +170,7 @@ final class Summary
     }
 
     /**
-     * @return string|null Destination country name
+     * @return string|null destination country name
      */
     public function getDestinationCountryName(): ?string
     {
@@ -177,9 +178,9 @@ final class Summary
     }
 
     /**
-     * @param string|null $destinationCountryName Destination country name
+     * @param string|null $destinationCountryName destination country name
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary
      */
     public function setDestinationCountryName(?string $destinationCountryName): self
     {
@@ -189,7 +190,7 @@ final class Summary
     }
 
     /**
-     * @return string|null Origin country code
+     * @return string|null origin country code
      */
     public function getOriginCountryCode(): ?string
     {
@@ -197,9 +198,9 @@ final class Summary
     }
 
     /**
-     * @param string|null $originCountryCode Origin country code
+     * @param string|null $originCountryCode origin country code
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary
      */
     public function setOriginCountryCode(?string $originCountryCode): self
     {
@@ -209,7 +210,7 @@ final class Summary
     }
 
     /**
-     * @return string|null Origin country name
+     * @return string|null origin country name
      */
     public function getOriginCountryName(): ?string
     {
@@ -217,9 +218,9 @@ final class Summary
     }
 
     /**
-     * @param string|null $originCountryName Origin country name
+     * @param string|null $originCountryName origin country name
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary
      */
     public function setOriginCountryName(?string $originCountryName): self
     {
@@ -229,7 +230,7 @@ final class Summary
     }
 
     /**
-     * @return string|null Code associated with the latest mail piece event
+     * @return string|null code associated with the latest mail piece event
      */
     public function getLastEventCode(): ?string
     {
@@ -237,9 +238,9 @@ final class Summary
     }
 
     /**
-     * @param string|null $lastEventCode Code associated with the latest mail piece event
+     * @param string|null $lastEventCode code associated with the latest mail piece event
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary
      */
     public function setLastEventCode(?string $lastEventCode): self
     {
@@ -249,7 +250,7 @@ final class Summary
     }
 
     /**
-     * @return string|null Name of the latest mail piece event
+     * @return string|null name of the latest mail piece event
      */
     public function getLastEventName(): ?string
     {
@@ -257,9 +258,9 @@ final class Summary
     }
 
     /**
-     * @param string|null $lastEventName Name of the latest mail piece event
+     * @param string|null $lastEventName name of the latest mail piece event
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary
      */
     public function setLastEventName(?string $lastEventName): self
     {
@@ -269,7 +270,7 @@ final class Summary
     }
 
     /**
-     * @return DateTimeImmutable|null Date and time associated with the latest mail piece event
+     * @return DateTimeImmutable|null date and time associated with the latest mail piece event
      */
     public function getLastEventDateTime(): ?DateTimeImmutable
     {
@@ -277,9 +278,9 @@ final class Summary
     }
 
     /**
-     * @param \DateTimeImmutable|null $lastEventDateTime Date and time associated with the latest mail piece event
+     * @param \DateTimeImmutable|null $lastEventDateTime date and time associated with the latest mail piece event
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary
      */
     public function setLastEventDateTime(?DateTimeImmutable $lastEventDateTime): self
     {
@@ -289,7 +290,7 @@ final class Summary
     }
 
     /**
-     * @return string|null Location name associated with the latest mail piece event
+     * @return string|null location name associated with the latest mail piece event
      */
     public function getLastEventLocationName(): ?string
     {
@@ -297,9 +298,9 @@ final class Summary
     }
 
     /**
-     * @param string|null $lastEventLocationName Location name associated with the latest mail piece event
+     * @param string|null $lastEventLocationName location name associated with the latest mail piece event
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary
      */
     public function setLastEventLocationName(?string $lastEventLocationName): self
     {
@@ -309,7 +310,7 @@ final class Summary
     }
 
     /**
-     * @return string|null Status description associated with the latest mail piece event
+     * @return string|null status description associated with the latest mail piece event
      */
     public function getStatusDescription(): ?string
     {
@@ -317,9 +318,9 @@ final class Summary
     }
 
     /**
-     * @param string|null $statusDescription Status description associated with the latest mail piece event
+     * @param string|null $statusDescription status description associated with the latest mail piece event
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary
      */
     public function setStatusDescription(?string $statusDescription): self
     {
@@ -329,7 +330,7 @@ final class Summary
     }
 
     /**
-     * @return string|null Status category associated with the latest mail piece event
+     * @return string|null status category associated with the latest mail piece event
      */
     public function getStatusCategory(): ?string
     {
@@ -337,9 +338,9 @@ final class Summary
     }
 
     /**
-     * @param string|null $statusCategory Status category associated with the latest mail piece event
+     * @param string|null $statusCategory status category associated with the latest mail piece event
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary
      */
     public function setStatusCategory(?string $statusCategory): self
     {
@@ -349,7 +350,7 @@ final class Summary
     }
 
     /**
-     * @return string|null Status help text associated with the latest mail piece event
+     * @return string|null status help text associated with the latest mail piece event
      */
     public function getStatusHelpText(): ?string
     {
@@ -357,9 +358,9 @@ final class Summary
     }
 
     /**
-     * @param string|null $statusHelpText Status help text associated with the latest mail piece event
+     * @param string|null $statusHelpText status help text associated with the latest mail piece event
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary
      */
     public function setStatusHelpText(?string $statusHelpText): self
     {
@@ -369,7 +370,7 @@ final class Summary
     }
 
     /**
-     * @return string|null Summary message for mail item's last tracking scan
+     * @return string|null summary message for mail item's last tracking scan
      */
     public function getSummaryLine(): ?string
     {
@@ -377,9 +378,9 @@ final class Summary
     }
 
     /**
-     * @param string|null $summaryLine Summary message for mail item's last tracking scan
+     * @param string|null $summaryLine summary message for mail item's last tracking scan
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary
      */
     public function setSummaryLine(?string $summaryLine): self
     {
@@ -389,8 +390,9 @@ final class Summary
     }
 
     /**
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\InternationalPostalProvider|null Object containing details of
-     *                                                                                 international postal organisation
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\InternationalPostalProvider|null object containing details of
+     *                                                                                 international postal
+     *                                                                                 organisation
      */
     public function getInternationalPostalProvider(): ?InternationalPostalProvider
     {
@@ -402,7 +404,7 @@ final class Summary
      *                                                                                                             Object containing details of
      *                                                                                                             international postal organisation
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary
      */
     public function setInternationalPostalProvider(?InternationalPostalProvider $internationalPostalProvider): self
     {

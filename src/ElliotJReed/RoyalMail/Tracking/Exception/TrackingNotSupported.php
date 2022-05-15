@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace ElliotJReed\RoyalMail\Tracking\Exception;
 
-final class Forbidden extends RoyalMailError
+final class TrackingNotSupported extends RoyalMailTrackingError
 {
-    protected $message = 'Access denied.';
 }

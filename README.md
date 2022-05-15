@@ -2,6 +2,12 @@
 
 # Royal Mail Tracking for PHP
 
+Note: this is an initial release of this package. It has been tested in the "real world", but there could be some issues.
+
+Please raise an issue in the GitHub repository if you are able, if not please feel free to [contact me](https://www.elliotjreed.com/contact).
+
+Pull requests for bug fixes or potential changes are welcome!
+
 ## Usage
 
 PHP 8.0 or above is required.
@@ -12,19 +18,405 @@ To install the package via [Composer](https://getcomposer.org/download/):
 composer require elliotjreed/royal-mail-tracking
 ```
 
+Three means of fetching tracking data are available:
+ - `Events`: for detailed information and full history of a single tracking number;
+ - `Signature`: the signature data (including image data - either base64-encoded PNG, or an SVG);
+ - `Summary`: for the most recent event for multiple tracking numbers.
+
+Details for each are outlined below, with examples included.
+
+Information about error handling is provided below the `Events`, `Signature`, and `Summary` information
+(and is worth reading as `Summary` errors are handled differently to `Events` and `Summary` errors).
+
+### Events
+
+The behaviour of the events operation is to provide a history of tracks for a single mail item.
+
+Returns the summary, signature metadata, estimated delivery window and events for a supplied tracking number.
+
+```php
+$tracking = (new \ElliotJReed\RoyalMail\Tracking\Events(
+    new \GuzzleHttp\Client(),
+    'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+    '12345678901234567890123456789012345678901234567890'
+));
+
+$mailPieces = $tracking->setTrackingNumber('AB1234567890GB')->getResponse()->getMailPieces();
+
+$mailPieces->getMailPieceId(); // 090367574000000FE1E1B
+$mailPieces->getCarrierShortName(); // RM
+$mailPieces->getCarrierFullName(); // Royal Mail Group Ltd
+
+$summary = $mailPieces->getSummary();
+$summary->getUniqueItemId(); // 090367574000000FE1E1B
+$summary->getOneDBarcode(); // FQ087430672GB
+$summary->getProductId(); // SD2
+$summary->getProductName(); // Special Delivery Guaranteed
+$summary->getProductDescription(); // Our guaranteed next day service with tracking and a signature on delivery
+$summary->getProductCategory(); // NON-INTERNATIONAL
+$summary->getDestinationCountryCode(); // GBR
+$summary->getDestinationCountryName(); // United Kingdom of Great Britain and Northern Ireland
+$summary->getOriginCountryCode(); // GBR
+$summary->getOriginCountryName(); // United Kingdom of Great Britain and Northern Ireland
+$summary->getLastEventCode(); // EVNMI
+$summary->getLastEventName(); // Forwarded - Mis-sort
+$summary->getLastEventDateTime(); // new DateTimeImmutable('2016-10-20T10:04:00+01:00')
+$summary->getLastEventLocationName(); // Stafford DO
+$summary->getStatusDescription(); // It is being redirected
+$summary->getStatusCategory(); // IN TRANSIT
+$summary->getStatusHelpText(); // The item is in transit
+$summary->getSummaryLine(); // Item FQ087430672GB was forwarded to the Delivery Office on 2016-10-20.
+
+$internationalPostalProvider = $summary->getInternationalPostalProvider();
+$internationalPostalProvider->getUrl(); // https://www.royalmail.com/track-your-item
+$internationalPostalProvider->getTitle(); // Royal Mail Group Ltd
+$internationalPostalProvider->getDescription(); // Royal Mail Group Ltd
+
+$signature = $mailPieces->getSignature();
+$signature->getRecipientName(); // Elliot
+$signature->getSignatureDateTime(); // new DateTimeImmutable('2016-10-20T10:04:00+01:00')
+$signature->getImageId(); // 001234
+
+$estimatedDelivery = $mailPieces->getEstimatedDelivery();
+$estimatedDelivery->getDate(); // new DateTimeImmutable('2017-02-20T00:00:00+00:00')
+$estimatedDelivery->getStartOfEstimatedWindow(); // new DateTimeImmutable('2017-02-20T08:00:00+01:00')
+$estimatedDelivery->getEndOfEstimatedWindow(); // new DateTimeImmutable('2017-02-20T11:00:00+01:00')
+
+$events = $mailPieces->getEvents();
+$event = $events[0];
+$event->getEventCode(); // EVNMI
+$event->getEventName(); // Forwarded - Mis-sort
+$event->getEventDateTime(); // new DateTimeImmutable('2016-10-20T10:04:00+01:00')
+$event->getLocationName(); // Stafford DO
+
+$linkSummary = $mailPieces->getLinks()->getSummary();
+$linkSummary->getHref(); // /mailpieces/v2/summary?mailPieceId=090367574000000FE1E1B
+$linkSummary->getTitle(); // Summary
+$linkSummary->getDescription(); // Get summary
+
+$linkSignature = $mailPieces->getLinks()->getSignature();
+$linkSignature->getHref(); // /mailpieces/v2/090367574000000FE1E1B/signature
+$linkSignature->getTitle(); // Signature
+$linkSignature->getDescription(); // Get signature
+
+$linkRedelivery = $mailPieces->getLinks()->getRedelivery();
+$linkRedelivery->getHref(); // /personal/receiving-mail/redelivery
+$linkRedelivery->getTitle(); // Redelivery
+$linkRedelivery->getDescription(); // Book a redelivery
+```
+
+#### JSON output
+
+```php
+$tracking = (new \ElliotJReed\RoyalMail\Tracking\Events(
+    new \GuzzleHttp\Client(),
+    'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+    '12345678901234567890123456789012345678901234567890'
+));
+
+echo $tracking->setTrackingNumber('AB1234567890GB')->asJson();
+```
+
+Would output the Royal Mail response as JSON:
+
+```json
+{
+    "mailPieces": {
+        "carrierFullName": "Royal Mail Group Ltd",
+        "carrierShortName": "RM",
+        "estimatedDelivery": {
+            "date": "2017-02-20T00:00:00+00:00",
+            "endOfEstimatedWindow": "2017-02-20T11:00:00+01:00",
+            "startOfEstimatedWindow": "2017-02-20T08:00:00+01:00"
+        },
+        "events": [
+            {
+                "eventCode": "EVNMI",
+                "eventDateTime": "2016-10-20T10:04:00+01:00",
+                "eventName": "Forwarded - Mis-sort",
+                "locationName": "Stafford DO"
+            }
+        ],
+        "links": {
+            "redelivery": {
+                "description": "Book a redelivery",
+                "href": "/personal/receiving-mail/redelivery",
+                "title": "Redelivery"
+            },
+            "signature": {
+                "description": "Get signature",
+                "href": "/mailpieces/v2/090367574000000FE1E1B/signature",
+                "title": "Signature"
+            },
+            "summary": {
+                "description": "Get summary",
+                "href": "/mailpieces/v2/summary?mailPieceId=090367574000000FE1E1B",
+                "title": "Summary"
+            }
+        },
+        "mailPieceId": "090367574000000FE1E1B",
+        "signature": {
+            "imageId": "001234",
+            "recipientName": "Simon",
+            "signatureDateTime": "2016-10-20T10:04:00+01:00"
+        },
+        "summary": {
+            "destinationCountryCode": "GBR",
+            "destinationCountryName": "United Kingdom of Great Britain and Northern Ireland",
+            "internationalPostalProvider": {
+                "description": "Royal Mail Group Ltd",
+                "title": "Royal Mail Group Ltd",
+                "url": "https://www.royalmail.com/track-your-item"
+            },
+            "lastEventCode": "EVNMI",
+            "lastEventDateTime": "2016-10-20T10:04:00+01:00",
+            "lastEventLocationName": "Stafford DO",
+            "lastEventName": "Forwarded - Mis-sort",
+            "oneDBarcode": "FQ087430672GB",
+            "originCountryCode": "GBR",
+            "originCountryName": "United Kingdom of Great Britain and Northern Ireland",
+            "productCategory": "NON-INTERNATIONAL",
+            "productDescription": "Our guaranteed next day service with tracking and a signature on delivery",
+            "productId": "SD2",
+            "productName": "Special Delivery Guaranteed",
+            "statusCategory": "IN TRANSIT",
+            "statusDescription": "It is being redirected",
+            "statusHelpText": "The item is in transit",
+            "summaryLine": "Item FQ087430672GB was forwarded to the Delivery Office on 2016-10-20.",
+            "uniqueItemId": "090367574000000FE1E1B"
+        }
+    }
+}
+```
+
+### Signature
+
+```php
+$tracking = (new \ElliotJReed\RoyalMail\Tracking\Signature(
+    new \GuzzleHttp\Client(),
+    'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+    '12345678901234567890123456789012345678901234567890'
+));
+
+$mailPieces = $tracking->setTrackingNumber('AB1234567890GB')->getResponse()->getMailPieces();
+
+$mailPieces->getMailPieceId(); // 090367574000000FE1E1B
+$mailPieces->getCarrierShortName(); // RM
+$mailPieces->getCarrierFullName(); // Royal Mail Group Ltd
+
+$signature = $mailPieces->getSignature();
+$signature->getRecipientName(); // Elliot
+$signature->getSignatureDateTime(); // new DateTimeImmutable('2017-03-30T16:15:00+01:00')
+$signature->getImageId(); // 001234
+$signature->getOneDBarcode(); // FQ087430672GB
+$signature->getHeight(); // 530
+$signature->getWidth(); // 660
+$signature->getUniqueItemId(); // 090367574000000FE1E1B
+$signature->getImageFormat(); // image/svg+xml
+$signature->getImage(); // <svg></svg>
+
+$events = $mailPieces->getLinks()->getEvents();
+$events->getHref(); // /mailpieces/v2/FQ087430672GB/events
+$events->getTitle(); // Events
+$events->getDescription(); // Get events
+
+$linkSummary = $mailPieces->getLinks()->getSummary();
+$linkSummary->getHref(); // /mailpieces/v2/summary?mailPieceId=090367574000000FE1E1B
+$linkSummary->getTitle(); // Summary
+$linkSummary->getDescription(); // Get summary
+```
+
+#### JSON output
+
+```php
+$tracking = (new \ElliotJReed\RoyalMail\Tracking\Signature(
+    new \GuzzleHttp\Client(),
+    'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+    '12345678901234567890123456789012345678901234567890'
+));
+
+echo $tracking->setTrackingNumber('AB1234567890GB')->asJson();
+```
+
+Would output the Royal Mail tracking response as JSON:
+
+```json
+{
+    "mailPieces": {
+        "carrierFullName": "Royal Mail Group Ltd",
+        "carrierShortName": "RM",
+        "links": {
+            "events": {
+                "description": "Get events",
+                "href": "/mailpieces/v2/FQ087430672GB/events",
+                "title": "Events"
+            },
+            "summary": {
+                "description": "Get summary",
+                "href": "/mailpieces/v2/summary?mailPieceId=090367574000000FE1E1B",
+                "title": "Summary"
+            }
+        },
+        "mailPieceId": "090367574000000FE1E1B",
+        "signature": {
+            "height": 530,
+            "image": "<svg></svg>",
+            "imageFormat": "image/svg+xml",
+            "imageId": "001234",
+            "oneDBarcode": "FQ087430672GB",
+            "recipientName": "Elliot",
+            "signatureDateTime": "2017-03-30T16:15:00+01:00",
+            "uniqueItemId": "090367574000000FE1E1B",
+            "width": 660
+        }
+    }
+}
+```
+
+### Summary
+
+The behaviour of the summary operation is to allow customers to obtain the latest tracking data for a mail item.
+
+This operation returns the summary of one or more tracking numbers provided in the request.
+
+This operation only allows a maximum of 30 tracking numbers to be provided in the `->setTrackingNumbers()` method
+(eg. `->setTrackingNumbers(['AB0123456789GB', 'CD0123456789GB'])`).
+
+```php
+$summary = (new \ElliotJReed\RoyalMail\Tracking\Summary(
+    new \GuzzleHttp\Client(),
+    'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+    '12345678901234567890123456789012345678901234567890'
+));
+
+$mailPieces = $summary->setTrackingNumbers('AB1234567890GB', 'CD1234567890GB')->getResponse()->getMailPieces();
+
+$firstMailPieces = $mailPieces[0];
+
+$firstMailPieces->getMailPieceId(); // 090367574000000FE1E1B
+$firstMailPieces->getCarrierShortName(); // RM
+$firstMailPieces->getCarrierFullName(); // Royal Mail Group Ltd
+
+$summary = $firstMailPieces->getSummary();
+$summary->getUniqueItemId(); // 090367574000000FE1E1B
+$summary->getOneDBarcode(); // FQ087430672GB
+$summary->getProductId(); // SD2
+$summary->getProductName(); // Special Delivery Guaranteed
+$summary->getProductDescription(); // Our guaranteed next day service with tracking and a signature on delivery
+$summary->getProductCategory(); // NON-INTERNATIONAL
+$summary->getDestinationCountryCode(); // GBR
+$summary->getDestinationCountryName(); // United Kingdom of Great Britain and Northern Ireland
+$summary->getOriginCountryCode(); // GBR
+$summary->getOriginCountryName(); // United Kingdom of Great Britain and Northern Ireland
+$summary->getLastEventCode(); // EVNMI
+$summary->getLastEventName(); // Forwarded - Mis-sort
+$summary->getLastEventDateTime(); // new DateTimeImmutable('2016-10-20T10:04:00+01:00')
+$summary->getLastEventLocationName(); // Stafford DO
+$summary->getStatusDescription(); // It is being redirected
+$summary->getStatusCategory(); // IN TRANSIT
+$summary->getStatusHelpText(); // The item is in transit
+$summary->getSummaryLine(); // Item FQ087430672GB was forwarded to the Delivery Office on 2016-10-20.
+
+$internationalPostalProvider = $summary->getInternationalPostalProvider();
+$internationalPostalProvider->getUrl(); // https://www.royalmail.com/track-your-item
+$internationalPostalProvider->getTitle(); // Royal Mail Group Ltd
+$internationalPostalProvider->getDescription(); // Royal Mail Group Ltd
+
+$events = $firstMailPieces->getLinks()->getEvents();
+$events->getHref(); // /mailpieces/v2/FQ087430672GB/events
+$events->getTitle(); // Events
+$events->getDescription(); // Get events
+
+$error = $firstMailPieces->getError();
+$error->getErrorCode(); // E1142
+$error->getErrorDescription(); // Barcode reference $mailPieceId isn't recognised
+$error->getErrorCause(); // A mail item with that barcode cannot be located
+$error->getErrorResolution(); // Check barcode and resubmit
+```
+
+#### JSON output
+
+```php
+$summary = (new \ElliotJReed\RoyalMail\Tracking\Summary(
+    new \GuzzleHttp\Client(),
+    'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+    '12345678901234567890123456789012345678901234567890'
+));
+
+echo $summary->asJson();
+```
+
+Would output the Royal Mail response as JSON:
+
+```json
+{
+    "mailPieces": [
+        {
+            "carrierFullName": "Royal Mail Group Ltd",
+            "carrierShortName": "RM",
+            "error": {
+                "errorCause": "A mail item with that barcode cannot be located",
+                "errorCode": "E1142",
+                "errorDescription": "Barcode reference mailPieceId is not recognised",
+                "errorResolution": "Check barcode and resubmit"
+            },
+            "links": {
+                "events": {
+                    "description": "Get events",
+                    "href": "/mailpieces/v2/FQ087430672GB/events",
+                    "title": "Events"
+                }
+            },
+            "mailPieceId": "090367574000000FE1E1B",
+            "summary": {
+                "destinationCountryCode": "GBR",
+                "destinationCountryName": "United Kingdom of Great Britain and Northern Ireland",
+                "internationalPostalProvider": {
+                    "description": "Royal Mail Group Ltd",
+                    "title": "Royal Mail Group Ltd",
+                    "url": "https://www.royalmail.com/track-your-item"
+                },
+                "lastEventCode": "EVNMI",
+                "lastEventDateTime": "2016-10-20T10:04:00+01:00",
+                "lastEventLocationName": "Stafford DO",
+                "lastEventName": "Forwarded - Mis-sort",
+                "oneDBarcode": "FQ087430672GB",
+                "originCountryCode": "GBR",
+                "originCountryName": "United Kingdom of Great Britain and Northern Ireland",
+                "productCategory": "NON-INTERNATIONAL",
+                "productDescription": "Our guaranteed next day service with tracking and a signature on delivery",
+                "productId": "SD2",
+                "productName": "Special Delivery Guaranteed",
+                "statusCategory": "IN TRANSIT",
+                "statusDescription": "It is being redirected",
+                "statusHelpText": "The item is in transit",
+                "summaryLine": "Item FQ087430672GB was forwarded to the Delivery Office on 2016-10-20.",
+                "uniqueItemId": "090367574000000FE1E1B"
+            }
+        }
+    ]
+}
+```
+
 ### Errors
 
 Errors are thrown as instances of the `\ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailError` exception.
 
-Further error information can be access through the `->getErrorResponse()` method on the thrown exception when available.
+Further error information can be accessed through the `->getResponse()` method on the thrown exception when available.
 
 Potential causes and resolutions can be accessed through `->getErrorResponse()->getErrors()` when available.
 
-Exceptions are thrown for `Events` and `Signature` requests for both application-specific errors (eg. invalid API credentials)
-_and_ business-specific errors (eg. the tracking number provided does not exist).
+#### Fatal Exceptions / Errors
 
-Errors for business-specific `Summary` request errors are returned in the `MailPiece` object rather than thrown as exceptions
-(as `Summary` will return information for multiple tracking numbers).
+When the response from Royal Mail's API is one which falls outside of their expected responses a
+`\ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailResponseError` is thrown.
+
+This would only be thrown if there is a serious outage at Royal Mail's API (for example, a DNS failure).
+
+#### Technical Exceptions / Errors
+
+Exceptions are thrown for `Events`, `Signature`, and `Summary` requests for application-specific / technical errors by default (eg. invalid API credentials),
+as instances of the `\ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailTechnicalError` exception.
 
 ```php
 try {
@@ -34,28 +426,178 @@ try {
         '12345678901234567890123456789012345678901234567890'
     ));
     $tracking->setTrackingNumber('AB1234567890GB');
-} catch (\ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailError $exception) {
-    echo $exception->getMessage() . \PHP_EOL;
-    echo $exception->getErrorResponse()->getHttpCode() . \PHP_EOL;
-    echo $exception->getErrorResponse()->getHttpMessage() . \PHP_EOL;
-    echo $exception->getErrorResponse()->getMoreInformation() . \PHP_EOL . \PHP_EOL;
+} catch (\ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailTechnicalError $exception) {
+    echo $exception->getMessage();
+    echo $exception->getResponse()->getHttpCode();
+    echo $exception->getResponse()->getHttpMessage();
+    echo $exception->getResponse()->getMoreInformation();
 
-    $responseErrors = $exception->getErrorResponse()->getErrors();
-    foreach ($responseErrors as $responseError) {
-        echo $responseError->getErrorCode() . \PHP_EOL;
-        echo $responseError->getErrorDescription() . \PHP_EOL;
-        echo $responseError->getErrorCause() . \PHP_EOL;
-        echo $responseError->getErrorResolution() . \PHP_EOL;
-    }
+    echo $exception->getResponse()->getErrors()[0]->getErrorCode();
+    echo $exception->getResponse()->getErrors()[0]->getErrorDescription();
+    echo $exception->getResponse()->getErrors()[0]->getErrorCause();
+    echo $exception->getResponse()->getErrors()[0]->getErrorResolution();
 }
+```
+
+##### Disabling Exceptions
+
+Exceptions for application-specific can be disabled so that errors are returned in the `Response` object (via `->getResponse()`).
+
+This can be useful for example when parsing the result and handling errors in, say, Javascript on the frontend.
+
+To disable exceptions being thrown set `$throwExceptionOnTechnicalError` to `false` in the constructor:
+
+```php
+$tracking = (new \ElliotJReed\RoyalMail\Tracking\Events(
+    new \GuzzleHttp\Client(),
+    'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+    '12345678901234567890123456789012345678901234567890',
+    true, // $throwExceptionOnTrackingError
+    false // $throwExceptionOnTechnicalError
+));
+$response = $tracking->setTrackingNumber('AB1234567890GB')->getResponse();
+
+echo $response->getMoreInformation();
+echo $response->getErrors()[0]->getErrorCode();
+echo $response->getErrors()[0]->getErrorCause();
+echo $response->getErrors()[0]->getErrorDescription();
+echo $response->getErrors()[0]->getErrorResolution();
+```
+
+```php
+$tracking = (new \ElliotJReed\RoyalMail\Tracking\Signature(
+    new \GuzzleHttp\Client(),
+    'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+    '12345678901234567890123456789012345678901234567890',
+    true, // $throwExceptionOnTrackingError
+    false // $throwExceptionOnTechnicalError
+));
+$response = $tracking->setTrackingNumber('AB1234567890GB')->getResponse();
+
+echo $response->getMoreInformation();
+echo $response->getErrors()[0]->getErrorCode();
+echo $response->getErrors()[0]->getErrorCause();
+echo $response->getErrors()[0]->getErrorDescription();
+echo $response->getErrors()[0]->getErrorResolution();
+```
+
+```php
+$tracking = (new \ElliotJReed\RoyalMail\Tracking\Summary(
+    new \GuzzleHttp\Client(),
+    'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+    '12345678901234567890123456789012345678901234567890',
+    false // $throwExceptionOnTechnicalError
+));
+$response = $tracking->setTrackingNumbers('AB1234567890GB')->getResponse();
+
+echo $response->getMoreInformation();
+echo $response->getErrors()[0]->getErrorCode();
+echo $response->getErrors()[0]->getErrorCause();
+echo $response->getErrors()[0]->getErrorDescription();
+echo $response->getErrors()[0]->getErrorResolution();
+```
+
+#### Business Exceptions / Errors
+
+Exceptions are thrown for `Events` and `Signature` requests for business/tracking number-specific errors by default (eg. invalid tracking number),
+as instances of the `\ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailTrackingError` exception.
+
+##### Events and Signature
+
+```php
+try {
+    $tracking = (new \ElliotJReed\RoyalMail\Tracking\Events(
+        new \GuzzleHttp\Client(),
+        'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+        '12345678901234567890123456789012345678901234567890'
+    ));
+
+    $tracking->setTrackingNumber('AB1234567890GB');
+} catch (\ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailTrackingError $exception) {
+    echo $exception->getMessage();
+    echo $exception->getResponse()->getHttpCode();
+    echo $exception->getResponse()->getHttpMessage();
+    echo $exception->getResponse()->getMoreInformation();
+
+    echo $exception->getMessage();
+    echo $exception->getResponse()->getHttpCode();
+    echo $exception->getResponse()->getHttpMessage();
+    echo $exception->getResponse()->getMoreInformation();
+
+    echo $exception->getResponse()->getErrors()[0]->getErrorCode();
+    echo $exception->getResponse()->getErrors()[0]->getErrorDescription();
+    echo $exception->getResponse()->getErrors()[0]->getErrorCause();
+    echo $exception->getResponse()->getErrors()[0]->getErrorResolution();
+}
+```
+
+##### Summary
+
+Errors for business/tracking number-specific `Summary` request errors are returned in the `MailPiece` object rather than thrown as exceptions
+(as `Summary` will return information for multiple tracking numbers).
+
+Because of this, when an error is encountered an exception will only be thrown when it is an application-specific error,
+and *not* when the error is related to a particular tracking number. Instead, the error is returned via the `Mailpieces` object for specific
+the tracking number.
+
+```php
+$tracking = (new \ElliotJReed\RoyalMail\Tracking\Summary(
+    new \GuzzleHttp\Client(),
+    'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+    '12345678901234567890123456789012345678901234567890'
+));
+
+$response = $tracking->setTrackingNumbers('AB1234567890GB')->getResponse();
+
+echo $response->getMailPieces()[0]->getError()->getMoreInformation();
+echo $response->getMailPieces()[0]->getError()->getErrorCode();
+echo $response->getMailPieces()[0]->getError()->getErrorCause();
+echo $response->getMailPieces()[0]->getError()->getErrorDescription();
+echo $response->getMailPieces()[0]->getError()->getErrorResolution();
+```
+
+#### Disabling Exceptions
+
+Exceptions for business/tracking number-specific for the `Events` and `Signature` can be disabled so that errors are returned
+in the `Response` object (via `->getResponse()`).
+
+To disable exceptions being thrown set `$throwExceptionOnTrackingError` to `false` in the constructor:
+
+```php
+$tracking = (new \ElliotJReed\RoyalMail\Tracking\Events(
+    new \GuzzleHttp\Client(),
+    'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+    '12345678901234567890123456789012345678901234567890',
+    false // $throwExceptionOnTrackingError
+));
+$response = $tracking->setTrackingNumber('AB1234567890GB')->getResponse();
+
+echo $response->getMoreInformation();
+echo $response->getErrors()[0]->getErrorCode();
+echo $response->getErrors()[0]->getErrorCause();
+echo $response->getErrors()[0]->getErrorDescription();
+echo $response->getErrors()[0]->getErrorResolution();
+```
+
+```php
+$tracking = (new \ElliotJReed\RoyalMail\Tracking\Signature(
+    new \GuzzleHttp\Client(),
+    'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+    '12345678901234567890123456789012345678901234567890',
+    false // $throwExceptionOnTrackingError
+));
+$response = $tracking->setTrackingNumber('AB1234567890GB')->getResponse();
+
+echo $response->getMoreInformation();
+echo $response->getErrors()[0]->getErrorCode();
+echo $response->getErrors()[0]->getErrorCause();
+echo $response->getErrors()[0]->getErrorDescription();
+echo $response->getErrors()[0]->getErrorResolution();
 ```
 
 #### Summary errors
 
 The `Summary` call returns information for multiple tracking numbers, some of which may contain errors.
-
-Because of this, when an error is encountered an exception will only be thrown when it is an application-specific error,
-and *not* when the error is related to a particular tracking number. Instead, the error is returned via the `MailPiece` object.
 
 ```php
 $summary = (new \ElliotJReed\RoyalMail\Tracking\Summary(
@@ -73,346 +615,6 @@ foreach ($summary->get() as $mailPiece) {
         echo $responseError->getErrorCause() . \PHP_EOL;
         echo $responseError->getErrorResolution() . \PHP_EOL;
     }
-}
-```
-
-### Events
-
-The behaviour of the events operation is to provide a history of tracks for a single mail item.
-
-Returns the summary, signature metadata, estimated delivery window and events for a supplied tracking number.
-
-```php
-$response = (new Events($client, 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', '12345678901234567890123456789012345678901234567890'))
-	->setTrackingNumber('FQ087430672GB')
-	->get();
-
-$response->getMailPieceId(); // 090367574000000FE1E1B
-$response->getCarrierShortName(); // RM
-$response->getCarrierFullName(); // Royal Mail Group Ltd
-
-$summary = $response->getSummary();
-$summary->getUniqueItemId(); // 090367574000000FE1E1B
-$summary->getOneDBarcode(); // FQ087430672GB
-$summary->getProductId(); // SD2
-$summary->getProductName(); // Special Delivery Guaranteed
-$summary->getProductDescription(); // Our guaranteed next day service with tracking and a signature on delivery
-$summary->getProductCategory(); // NON-INTERNATIONAL
-$summary->getDestinationCountryCode(); // GBR
-$summary->getDestinationCountryName(); // United Kingdom of Great Britain and Northern Ireland
-$summary->getOriginCountryCode(); // GBR
-$summary->getOriginCountryName(); // United Kingdom of Great Britain and Northern Ireland
-$summary->getLastEventCode(); // EVNMI
-$summary->getLastEventName(); // Forwarded - Mis-sort
-$summary->getLastEventDateTime(); // new DateTimeImmutable('2016-10-20T10:04:00+01:00')
-$summary->getLastEventLocationName(); // Stafford DO
-$summary->getStatusDescription(); // It is being redirected
-$summary->getStatusCategory(); // IN TRANSIT
-$summary->getStatusHelpText(); // The item is in transit
-$summary->getSummaryLine(); // Item FQ087430672GB was forwarded to the Delivery Office on 2016-10-20.
-
-$internationalPostalProvider = $summary->getInternationalPostalProvider();
-$internationalPostalProvider->getUrl(); // https://www.royalmail.com/track-your-item
-$internationalPostalProvider->getTitle(); // Royal Mail Group Ltd
-$internationalPostalProvider->getDescription(); // Royal Mail Group Ltd
-
-$signature = $response->getSignature();
-$signature->getRecipientName(); // Elliot
-$signature->getSignatureDateTime(); // new DateTimeImmutable('2016-10-20T10:04:00+01:00')
-$signature->getImageId(); // 001234
-
-$estimatedDelivery = $response->getEstimatedDelivery();
-$estimatedDelivery->getDate(); // new DateTimeImmutable('2017-02-20T00:00:00+00:00')
-$estimatedDelivery->getStartOfEstimatedWindow(); // new DateTimeImmutable('2017-02-20T08:00:00+01:00')
-$estimatedDelivery->getEndOfEstimatedWindow(); // new DateTimeImmutable('2017-02-20T11:00:00+01:00')
-
-$events = $response->getEvents();
-$event = $events[0];
-$event->getEventCode(); // EVNMI
-$event->getEventName(); // Forwarded - Mis-sort
-$event->getEventDateTime(); // new DateTimeImmutable('2016-10-20T10:04:00+01:00')
-$event->getLocationName(); // Stafford DO
-
-$linkSummary = $response->getLinks()->getSummary();
-$linkSummary->getHref(); // /mailpieces/v2/summary?mailPieceId=090367574000000FE1E1B
-$linkSummary->getTitle(); // Summary
-$linkSummary->getDescription(); // Get summary
-
-$linkSignature = $response->getLinks()->getSignature();
-$linkSignature->getHref(); // /mailpieces/v2/090367574000000FE1E1B/signature
-$linkSignature->getTitle(); // Signature
-$linkSignature->getDescription(); // Get signature
-
-$linkRedelivery = $response->getLinks()->getRedelivery();
-$linkRedelivery->getHref(); // /personal/receiving-mail/redelivery
-$linkRedelivery->getTitle(); // Redelivery
-$linkRedelivery->getDescription(); // Book a redelivery
-```
-
-#### JSON output
-
-```php
-echo (new Events($client, 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', '12345678901234567890123456789012345678901234567890'))
-	->setTrackingNumber('FQ087430672GB')
-	->asJson();
-```
-
-Would output the Royal Mail events response as JSON:
-
-```json
-{
-  "carrierFullName": "Royal Mail Group Ltd",
-  "carrierShortName": "RM",
-  "estimatedDelivery": {
-    "date": "2017-02-20T00:00:00+00:00",
-    "endOfEstimatedWindow": "2017-02-20T11:00:00+01:00",
-    "startOfEstimatedWindow": "2017-02-20T08:00:00+01:00"
-  },
-  "events": [
-    {
-      "eventCode": "EVNMI",
-      "eventDateTime": "2016-10-20T10:04:00+01:00",
-      "eventName": "Forwarded - Mis-sort",
-      "locationName": "Stafford DO"
-    }
-  ],
-  "links": {
-    "redelivery": {
-      "description": "Book a redelivery",
-      "href": "/personal/receiving-mail/redelivery",
-      "title": "Redelivery"
-    },
-    "signature": {
-      "description": "Get signature",
-      "href": "/mailpieces/v2/090367574000000FE1E1B/signature",
-      "title": "Signature"
-    },
-    "summary": {
-      "description": "Get summary",
-      "href": "/mailpieces/v2/summary?mailPieceId=090367574000000FE1E1B",
-      "title": "Summary"
-    }
-  },
-  "mailPieceId": "090367574000000FE1E1B",
-  "signature": {
-    "imageId": "001234",
-    "recipientName": "Elliot",
-    "signatureDateTime": "2016-10-20T10:04:00+01:00"
-  },
-  "summary": {
-    "destinationCountryCode": "GBR",
-    "destinationCountryName": "United Kingdom of Great Britain and Northern Ireland",
-    "internationalPostalProvider": {
-      "description": "Royal Mail Group Ltd",
-      "title": "Royal Mail Group Ltd",
-      "url": "https://www.royalmail.com/track-your-item"
-    },
-    "lastEventCode": "EVNMI",
-    "lastEventDateTime": "2016-10-20T10:04:00+01:00",
-    "lastEventLocationName": "Stafford DO",
-    "lastEventName": "Forwarded - Mis-sort",
-    "oneDBarcode": "FQ087430672GB",
-    "originCountryCode": "GBR",
-    "originCountryName": "United Kingdom of Great Britain and Northern Ireland",
-    "productCategory": "NON-INTERNATIONAL",
-    "productDescription": "Our guaranteed next day service with tracking and a signature on delivery",
-    "productId": "SD2",
-    "productName": "Special Delivery Guaranteed",
-    "statusCategory": "IN TRANSIT",
-    "statusDescription": "It is being redirected",
-    "statusHelpText": "The item is in transit",
-    "summaryLine": "Item FQ087430672GB was forwarded to the Delivery Office on 2016-10-20.",
-    "uniqueItemId": "090367574000000FE1E1B"
-  }
-}
-```
-
-### Summary
-
-The behaviour of the summary operation is to allow customers to obtain the latest tracking data for a mail item.
-
-This operation returns the summary of one or more tracking numbers provided in the request.
-
-This operation only allows a maximum of 30 tracking numbers to be provided in the `->setTrackingNumbers()` method
-(eg. `->setTrackingNumbers('AB0123456789GB', 'CD0123456789GB')`).
-
-```php
-$response = (new Summary($client, 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', '12345678901234567890123456789012345678901234567890'))
-	->setTrackingNumbers('FQ087430672GB')
-	->get();
-
-$firstResponse = $response[0];
-
-$firstResponse->getMailPieceId(); // 090367574000000FE1E1B
-$firstResponse->getCarrierShortName(); // RM
-$firstResponse->getCarrierFullName(); // Royal Mail Group Ltd
-
-$summary = $firstResponse->getSummary();
-$summary->getUniqueItemId(); // 090367574000000FE1E1B
-$summary->getOneDBarcode(); // FQ087430672GB
-$summary->getProductId(); // SD2
-$summary->getProductName(); // Special Delivery Guaranteed
-$summary->getProductDescription(); // Our guaranteed next day service with tracking and a signature on delivery
-$summary->getProductCategory(); // NON-INTERNATIONAL
-$summary->getDestinationCountryCode(); // GBR
-$summary->getDestinationCountryName(); // United Kingdom of Great Britain and Northern Ireland
-$summary->getOriginCountryCode(); // GBR
-$summary->getOriginCountryName(); // United Kingdom of Great Britain and Northern Ireland
-$summary->getLastEventCode(); // EVNMI
-$summary->getLastEventName(); // Forwarded - Mis-sort
-$summary->getLastEventDateTime(); // new DateTimeImmutable('2016-10-20T10:04:00+01:00')
-$summary->getLastEventLocationName(); // Stafford DO
-$summary->getStatusDescription(); // It is being redirected
-$summary->getStatusCategory(); // IN TRANSIT
-$summary->getStatusHelpText(); // The item is in transit
-$summary->getSummaryLine(); // Item FQ087430672GB was forwarded to the Delivery Office on 2016-10-20.
-
-$internationalPostalProvider = $summary->getInternationalPostalProvider();
-$internationalPostalProvider->getUrl(); // https://www.royalmail.com/track-your-item
-$internationalPostalProvider->getTitle(); // Royal Mail Group Ltd
-$internationalPostalProvider->getDescription(); // Royal Mail Group Ltd
-
-$events = $firstResponse->getLinks()->getEvents();
-$events->getHref(); // /mailpieces/v2/FQ087430672GB/events
-$events->getTitle(); // Events
-$events->getDescription(); // Get events
-
-$error = $firstResponse->getError();
-$error->getErrorCode(); // E1142
-$error->getErrorDescription(); // Barcode reference $mailPieceId isn't recognised
-$error->getErrorCause(); // A mail item with that barcode cannot be located
-$error->getErrorResolution(); // Check barcode and resubmit
-```
-
-#### JSON output
-
-```php
-echo (new Summary($client, 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', '12345678901234567890123456789012345678901234567890'))
-	->setTrackingNumbers('123456789GB')
-	->asJson();
-```
-
-Would output the Royal Mail summary response as JSON:
-
-```json
-[
-  {
-    "carrierFullName": "Royal Mail Group Ltd",
-    "carrierShortName": "RM",
-    "error": {
-      "errorCause": "A mail item with that barcode cannot be located",
-      "errorCode": "E1142",
-      "errorDescription": "Barcode reference mailPieceId isn not recognised",
-      "errorResolution": "Check barcode and resubmit"
-    },
-    "links": {
-      "events": {
-        "description": "Get events",
-        "href": "/mailpieces/v2/FQ087430672GB/events",
-        "title": "Events"
-      }
-    },
-    "mailPieceId": "090367574000000FE1E1B",
-    "summary": {
-      "destinationCountryCode": "GBR",
-      "destinationCountryName": "United Kingdom of Great Britain and Northern Ireland",
-      "internationalPostalProvider": {
-        "description": "Royal Mail Group Ltd",
-        "title": "Royal Mail Group Ltd",
-        "url": "https://www.royalmail.com/track-your-item"
-      },
-      "lastEventCode": "EVNMI",
-      "lastEventDateTime": "2016-10-20T10:04:00+01:00",
-      "lastEventLocationName": "Stafford DO",
-      "lastEventName": "Forwarded - Mis-sort",
-      "oneDBarcode": "FQ087430672GB",
-      "originCountryCode": "GBR",
-      "originCountryName": "United Kingdom of Great Britain and Northern Ireland",
-      "productCategory": "NON-INTERNATIONAL",
-      "productDescription": "Our guaranteed next day service with tracking and a signature on delivery",
-      "productId": "SD2",
-      "productName": "Special Delivery Guaranteed",
-      "statusCategory": "IN TRANSIT",
-      "statusDescription": "It is being redirected",
-      "statusHelpText": "The item is in transit",
-      "summaryLine": "Item FQ087430672GB was forwarded to the Delivery Office on 2016-10-20.",
-      "uniqueItemId": "090367574000000FE1E1B"
-    }
-  }
-]
-```
-
-### Signature
-
-```php
-$response = (new Signature($client, 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', '12345678901234567890123456789012345678901234567890'))
-	->setTrackingNumber('FQ087430672GB')
-	->get();
-
-$response->getMailPieceId(); // 090367574000000FE1E1B
-$response->getCarrierShortName(); // RM
-$response->getCarrierFullName(); // Royal Mail Group Ltd
-
-$signature = $response->getSignature();
-$signature->getRecipientName(); // Elliot
-$signature->getSignatureDateTime(); // new DateTimeImmutable('2017-03-30T16:15:00+01:00')
-$signature->getImageId(); // 001234
-$signature->getOneDBarcode(); // FQ087430672GB
-$signature->getHeight(); // 530
-$signature->getWidth(); // 660
-$signature->getUniqueItemId(); // 090367574000000FE1E1B
-$signature->getImageFormat(); // image/svg+xml
-$signature->getImage(); // <svg></svg>
-
-$events = $firstResponse->getLinks()->getEvents();
-$events->getHref(); // /mailpieces/v2/FQ087430672GB/events
-$events->getTitle(); // Events
-$events->getDescription(); // Get events
-
-$linkSummary = $response->getLinks()->getSummary();
-$linkSummary->getHref(); // /mailpieces/v2/summary?mailPieceId=090367574000000FE1E1B
-$linkSummary->getTitle(); // Summary
-$linkSummary->getDescription(); // Get summary
-```
-
-#### JSON output
-
-```php
-echo (new Summary($client, 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', '12345678901234567890123456789012345678901234567890'))
-	->setTrackingNumbers('FQ087430672GB')
-	->asJson();
-```
-
-Would output the Royal Mail tracking response as JSON:
-
-```json
-{
-  "carrierFullName": "Royal Mail Group Ltd",
-  "carrierShortName": "RM",
-  "links": {
-    "events": {
-      "description": "Get events",
-      "href": "/mailpieces/v2/FQ087430672GB/events",
-      "title": "Events"
-    },
-    "summary": {
-      "description": "Get summary",
-      "href": "/mailpieces/v2/summary?mailPieceId=090367574000000FE1E1B",
-      "title": "Summary"
-    }
-  },
-  "mailPieceId": "090367574000000FE1E1B",
-  "signature": {
-    "height": 530,
-    "image": "<svg></svg>",
-    "imageFormat": "image/svg+xml",
-    "imageId": "001234",
-    "oneDBarcode": "FQ087430672GB",
-    "recipientName": "Simon",
-    "signatureDateTime": "2017-03-30T16:15:00+01:00",
-    "uniqueItemId": "090367574000000FE1E1B",
-    "width": 660
-  }
 }
 ```
 
@@ -530,7 +732,6 @@ composer phpcs:github-actions
   - [PHP](https://secure.php.net/)
   - [Composer](https://getcomposer.org/)
   - [PHPUnit](https://phpunit.de/)
-  - [Psalm](https://psalm.dev/)
   - [PHP Code Sniffer](https://github.com/squizlabs/PHP_CodeSniffer)
   - [GNU Make](https://www.gnu.org/software/make/)
 

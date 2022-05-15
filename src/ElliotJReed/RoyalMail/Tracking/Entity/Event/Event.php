@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ElliotJReed\RoyalMail\Tracking\Entity;
+namespace ElliotJReed\RoyalMail\Tracking\Entity\Event;
 
 use DateTimeImmutable;
 
@@ -10,11 +10,11 @@ final class Event
 {
     private ?string $eventCode = null;
     private ?string $eventName = null;
-    private ?DateTimeImmutable $eventDateTime = null;
+    private DateTimeImmutable $eventDateTime;
     private ?string $locationName = null;
 
     /**
-     * @return string|null Code associated with the mail piece event
+     * @return string|null code associated with the mail piece event
      */
     public function getEventCode(): ?string
     {
@@ -22,9 +22,9 @@ final class Event
     }
 
     /**
-     * @param string|null $eventCode Code associated with the mail piece event
+     * @param string|null $eventCode code associated with the mail piece event
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\Event
      */
     public function setEventCode(?string $eventCode): self
     {
@@ -34,7 +34,7 @@ final class Event
     }
 
     /**
-     * @return string|null Name of the event
+     * @return string|null name of the event
      */
     public function getEventName(): ?string
     {
@@ -42,9 +42,9 @@ final class Event
     }
 
     /**
-     * @param string|null $eventName Name of the event
+     * @param string|null $eventName name of the event
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\Event
      */
     public function setEventName(?string $eventName): self
     {
@@ -54,19 +54,19 @@ final class Event
     }
 
     /**
-     * @return \DateTimeImmutable|null Date and time of the event
+     * @return \DateTimeImmutable date and time of the event
      */
-    public function getEventDateTime(): ?DateTimeImmutable
+    public function getEventDateTime(): DateTimeImmutable
     {
         return $this->eventDateTime;
     }
 
     /**
-     * @param \DateTimeImmutable|null $eventDateTime Date and time of the event
+     * @param \DateTimeImmutable $eventDateTime date and time of the event
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\Event
      */
-    public function setEventDateTime(?DateTimeImmutable $eventDateTime): self
+    public function setEventDateTime(DateTimeImmutable $eventDateTime): self
     {
         $this->eventDateTime = $eventDateTime;
 
@@ -74,7 +74,7 @@ final class Event
     }
 
     /**
-     * @return string|null Location name associated with the mail piece event
+     * @return string|null location name associated with the mail piece event
      */
     public function getLocationName(): ?string
     {
@@ -82,9 +82,9 @@ final class Event
     }
 
     /**
-     * @param string|null $locationName Location name associated with the mail piece event
+     * @param string|null $locationName location name associated with the mail piece event
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\Event
      */
     public function setLocationName(?string $locationName): self
     {

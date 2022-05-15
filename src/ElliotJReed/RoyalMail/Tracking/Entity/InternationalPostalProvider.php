@@ -6,24 +6,24 @@ namespace ElliotJReed\RoyalMail\Tracking\Entity;
 
 final class InternationalPostalProvider
 {
-    private ?string $url = null;
-    private ?string $title = null;
-    private ?string $description = null;
+    private string $url;
+    private string $title;
+    private string $description;
 
     /**
-     * @return string|null URL link to website of delivery provider for international parcels
+     * @return string URL link to website of delivery provider for international parcels
      */
-    public function getUrl(): ?string
+    public function getUrl(): string
     {
         return $this->url;
     }
 
     /**
-     * @param string|null $url URL link to website of delivery provider for international parcels
+     * @param string $url URL link to website of delivery provider for international parcels
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\InternationalPostalProvider
      */
-    public function setUrl(?string $url): self
+    public function setUrl(string $url): self
     {
         $this->url = $url;
 
@@ -31,7 +31,7 @@ final class InternationalPostalProvider
     }
 
     /**
-     * @return string|null Name of the international postal organisation
+     * @return string|null name of the international postal organisation
      */
     public function getTitle(): ?string
     {
@@ -39,11 +39,11 @@ final class InternationalPostalProvider
     }
 
     /**
-     * @param string|null $title Name of the international postal organisation
+     * @param string $title name of the international postal organisation
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\InternationalPostalProvider
      */
-    public function setTitle(?string $title): self
+    public function setTitle(string $title): self
     {
         $this->title = $title;
 
@@ -51,19 +51,19 @@ final class InternationalPostalProvider
     }
 
     /**
-     * @return string|null Description of the international postal organisation
+     * @return string description of the international postal organisation
      */
-    public function getDescription(): ?string
+    public function getDescription(): string
     {
         return $this->description;
     }
 
     /**
-     * @param string|null $description Description of the international postal organisation
+     * @param string $description description of the international postal organisation
      *
-     * @return $this
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\InternationalPostalProvider
      */
-    public function setDescription(?string $description): self
+    public function setDescription(string $description): self
     {
         $this->description = $description;
 
