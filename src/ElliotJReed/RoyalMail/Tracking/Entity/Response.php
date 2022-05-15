@@ -9,7 +9,7 @@ abstract class Response
     private ?int $httpCode = null;
     private ?string $httpMessage = null;
     private ?string $moreInformation = null;
-    private ?array $errors = null;
+    private array $errors = [];
 
     /**
      * @return int|null HTTP error code. This will only be populated in the event of an error condition.
@@ -73,19 +73,19 @@ abstract class Response
     }
 
     /**
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\ErrorResponse[]|null array containing error information
+     * @return \ElliotJReed\RoyalMail\Tracking\Entity\ErrorResponse[] array containing error information
      */
-    public function getErrors(): ?array
+    public function getErrors(): array
     {
         return $this->errors;
     }
 
     /**
-     * @param \ElliotJReed\RoyalMail\Tracking\Entity\ErrorResponse[]|null $errors array containing error information
+     * @param \ElliotJReed\RoyalMail\Tracking\Entity\ErrorResponse[] $errors array containing error information
      *
      * @return \ElliotJReed\RoyalMail\Tracking\Entity\Response
      */
-    public function setErrors(?array $errors): self
+    public function setErrors(array $errors): self
     {
         $this->errors = $errors;
 

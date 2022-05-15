@@ -185,7 +185,8 @@ Would output the Royal Mail response as JSON:
             "summaryLine": "Item FQ087430672GB was forwarded to the Delivery Office on 2016-10-20.",
             "uniqueItemId": "090367574000000FE1E1B"
         }
-    }
+    },
+    "errors": []
 }
 ```
 
@@ -269,7 +270,8 @@ Would output the Royal Mail tracking response as JSON:
             "uniqueItemId": "090367574000000FE1E1B",
             "width": 660
         }
-    }
+    },
+    "errors": []
 }
 ```
 
@@ -394,7 +396,8 @@ Would output the Royal Mail response as JSON:
                 "uniqueItemId": "090367574000000FE1E1B"
             }
         }
-    ]
+    ],
+    "errors": []
 }
 ```
 

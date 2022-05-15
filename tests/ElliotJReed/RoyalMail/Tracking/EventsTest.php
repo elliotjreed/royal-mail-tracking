@@ -288,7 +288,8 @@ final class EventsTest extends TestCase
               "summaryLine": "Item FQ087430672GB was forwarded to the Delivery Office on 2016-10-20.",
               "uniqueItemId": "090367574000000FE1E1B"
             }
-          }
+          },
+          "errors": []
         }', $response->asJson());
     }
 
@@ -651,7 +652,7 @@ final class EventsTest extends TestCase
             $this->assertSame(401, $response->getHttpCode());
             $this->assertSame('HTTP message', $response->getHttpMessage());
             $this->assertSame('More information', $response->getMoreInformation());
-            $this->assertNull($response->getErrors());
+            $this->assertSame([], $response->getErrors());
         }
     }
 
@@ -677,7 +678,7 @@ final class EventsTest extends TestCase
             $this->assertSame(404, $response->getHttpCode());
             $this->assertSame('HTTP message', $response->getHttpMessage());
             $this->assertSame('More information', $response->getMoreInformation());
-            $this->assertNull($response->getErrors());
+            $this->assertSame([], $response->getErrors());
         }
     }
 
@@ -703,7 +704,7 @@ final class EventsTest extends TestCase
             $this->assertSame(405, $response->getHttpCode());
             $this->assertSame('HTTP message', $response->getHttpMessage());
             $this->assertSame('More information', $response->getMoreInformation());
-            $this->assertNull($response->getErrors());
+            $this->assertSame([], $response->getErrors());
         }
     }
 
@@ -1125,7 +1126,7 @@ final class EventsTest extends TestCase
         $this->assertSame(401, $response->getHttpCode());
         $this->assertSame('HTTP message', $response->getHttpMessage());
         $this->assertSame('More information', $response->getMoreInformation());
-        $this->assertNull($response->getErrors());
+        $this->assertSame([], $response->getErrors());
     }
 
     public function testItReturnsResponseAndDoesNotThrowUriNotFound(): void
@@ -1145,7 +1146,7 @@ final class EventsTest extends TestCase
         $this->assertSame(404, $response->getHttpCode());
         $this->assertSame('HTTP message', $response->getHttpMessage());
         $this->assertSame('More information', $response->getMoreInformation());
-        $this->assertNull($response->getErrors());
+        $this->assertSame([], $response->getErrors());
     }
 
     public function testItReturnsResponseAndDoesNotThrowMethodNotAllowed(): void
@@ -1165,7 +1166,7 @@ final class EventsTest extends TestCase
         $this->assertSame(405, $response->getHttpCode());
         $this->assertSame('HTTP message', $response->getHttpMessage());
         $this->assertSame('More information', $response->getMoreInformation());
-        $this->assertNull($response->getErrors());
+        $this->assertSame([], $response->getErrors());
     }
 
     public function testItReturnsResponseAndDoesNotThrowMaximumParametersExceeded(): void
