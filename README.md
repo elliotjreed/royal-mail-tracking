@@ -621,6 +621,45 @@ foreach ($summary->get() as $mailPiece) {
 }
 ```
 
+### Using in Symfony
+
+To use this library in Symfony, add the following to the `services.yaml` to have the `Events`, `Signature`, and `Summary` available for autowiring:
+
+```yaml
+  guzzle.client.royal_mail_tracking:
+    class: GuzzleHttp\Client
+    arguments:
+      - {
+          timeout: 10
+        }
+
+  ElliotJReed\RoyalMail\Tracking\Events:
+    class: ElliotJReed\RoyalMail\Tracking\Events
+    arguments:
+      $httpClient: '@guzzle.client.royal_mail_tracking'
+      $royalMailClientId: '%env(string:ROYAL_MAIL_API_CLIENT_ID)%'
+      $royalMailClientSecret: '%env(string:ROYAL_MAIL_API_CLIENT_SECRET)%'
+      $throwExceptionOnTrackingError: true
+      $throwExceptionOnTechnicalError: true
+
+  ElliotJReed\RoyalMail\Tracking\Signature:
+    class: ElliotJReed\RoyalMail\Tracking\Signature
+    arguments:
+      $httpClient: '@guzzle.client.royal_mail_tracking'
+      $royalMailClientId: '%env(string:ROYAL_MAIL_API_CLIENT_ID)%'
+      $royalMailClientSecret: '%env(string:ROYAL_MAIL_API_CLIENT_SECRET)%'
+      $throwExceptionOnTrackingError: true
+      $throwExceptionOnTechnicalError: true
+
+  ElliotJReed\RoyalMail\Tracking\Summary:
+    class: ElliotJReed\RoyalMail\Tracking\Summary
+    arguments:
+      $httpClient: '@guzzle.client.royal_mail_tracking'
+      $royalMailClientId: '%env(string:ROYAL_MAIL_API_CLIENT_ID)%'
+      $royalMailClientSecret: '%env(string:ROYAL_MAIL_API_CLIENT_SECRET)%'
+      $throwExceptionOnTechnicalError: true
+```
+
 ## Development
 
 PHP 8.0 or above and Composer is expected to be installed.
