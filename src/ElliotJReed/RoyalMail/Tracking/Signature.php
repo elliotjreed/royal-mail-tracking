@@ -114,11 +114,11 @@ class Signature extends Track
             ->setCarrierShortName($mailPiece['carrierShortName'] ?? null)
             ->setCarrierFullName($mailPiece['carrierFullName'] ?? null);
 
-        if (isset($mailPiece['signature'])) {
+        if (!empty($mailPiece['signature'])) {
             $tracking->setSignature($this->buildSignature($mailPiece['signature']));
         }
 
-        if (isset($mailPiece['links'])) {
+        if (!empty($mailPiece['links'])) {
             $tracking->setLinks($this->buildLinks($mailPiece));
         }
 
@@ -149,7 +149,7 @@ class Signature extends Track
     {
         $trackingLinks = new Links();
 
-        if (isset($mailPiece['links']['summary'])) {
+        if (!empty($mailPiece['links']['summary'])) {
             $summaryLink = $mailPiece['links']['summary'];
 
             $trackingLinks->setSummary((new Link())
@@ -158,7 +158,7 @@ class Signature extends Track
                 ->setDescription($summaryLink['description'] ?? null));
         }
 
-        if (isset($mailPiece['links']['events'])) {
+        if (!empty($mailPiece['links']['events'])) {
             $events = $mailPiece['links']['events'];
 
             $trackingLinks->setEvents((new Link())

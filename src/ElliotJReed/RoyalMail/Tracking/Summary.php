@@ -119,15 +119,15 @@ class Summary extends Track
             ->setCarrierShortName($mailPiece['carrierShortName'] ?? null)
             ->setCarrierFullName($mailPiece['carrierFullName'] ?? null);
 
-        if (isset($mailPiece['summary'])) {
+        if (!empty($mailPiece['summary'])) {
             $tracking->setSummary($this->buildSummary($mailPiece));
         }
 
-        if (isset($mailPiece['links'])) {
+        if (!empty($mailPiece['links'])) {
             $tracking->setLinks($this->buildLinks($mailPiece));
         }
 
-        if (isset($mailPiece['error'])) {
+        if (!empty($mailPiece['error'])) {
             $error = $mailPiece['error'];
             $tracking->setError((new ErrorResponse())
                 ->setErrorCode($error['errorCode'])
@@ -165,7 +165,7 @@ class Summary extends Track
         } catch (Exception) {
         }
 
-        if (isset($mailPiece['summary']['internationalPostalProvider'])) {
+        if (!empty($mailPiece['summary']['internationalPostalProvider'])) {
             $internationalPostalProvider = $mailPiece['summary']['internationalPostalProvider'];
 
             $trackingSummary->setInternationalPostalProvider((new InternationalPostalProvider())
@@ -181,7 +181,7 @@ class Summary extends Track
     {
         $trackingLinks = new Links();
 
-        if (isset($mailPiece['links']['events'])) {
+        if (!empty($mailPiece['links']['events'])) {
             $events = $mailPiece['links']['events'];
 
             $trackingLinks->setEvents((new Link())

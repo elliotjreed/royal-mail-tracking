@@ -119,23 +119,23 @@ class Events extends Track
             ->setCarrierShortName($mailPiece['carrierShortName'] ?? null)
             ->setCarrierFullName($mailPiece['carrierFullName'] ?? null);
 
-        if (isset($mailPiece['summary'])) {
+        if (!empty($mailPiece['summary'])) {
             $tracking->setSummary($this->buildSummary($mailPiece));
         }
 
-        if (isset($mailPiece['signature'])) {
+        if (!empty($mailPiece['signature'])) {
             $tracking->setSignature($this->buildSignature($mailPiece['signature']));
         }
 
-        if (isset($mailPiece['estimatedDelivery'])) {
+        if (!empty($mailPiece['estimatedDelivery'])) {
             $tracking->setEstimatedDelivery($this->buildEstimatedDelivery($mailPiece['estimatedDelivery']));
         }
 
-        if (isset($mailPiece['links'])) {
+        if (!empty($mailPiece['links'])) {
             $tracking->setLinks($this->buildLinks($mailPiece));
         }
 
-        if (isset($mailPiece['events'])) {
+        if (!empty($mailPiece['events'])) {
             foreach ($mailPiece['events'] as $event) {
                 $tracking->addEvent($this->buildEvent($event));
             }
@@ -170,7 +170,7 @@ class Events extends Track
         } catch (Exception) {
         }
 
-        if (isset($mailPiece['summary']['internationalPostalProvider'])) {
+        if (!empty($mailPiece['summary']['internationalPostalProvider'])) {
             $internationalPostalProvider = $mailPiece['summary']['internationalPostalProvider'];
 
             $trackingSummary->setInternationalPostalProvider((new InternationalPostalProvider())
@@ -215,7 +215,7 @@ class Events extends Track
     {
         $trackingLinks = new Links();
 
-        if (isset($mailPiece['links']['summary'])) {
+        if (!empty($mailPiece['links']['summary'])) {
             $summaryLink = $mailPiece['links']['summary'];
 
             $trackingLinks->setSummary((new Link())
@@ -224,7 +224,7 @@ class Events extends Track
                 ->setDescription($summaryLink['description'] ?? null));
         }
 
-        if (isset($mailPiece['links']['signature'])) {
+        if (!empty($mailPiece['links']['signature'])) {
             $signatureLink = $mailPiece['links']['signature'];
 
             $trackingLinks->setSignature((new Link())
@@ -233,7 +233,7 @@ class Events extends Track
                 ->setDescription($signatureLink['description'] ?? null));
         }
 
-        if (isset($mailPiece['links']['redelivery'])) {
+        if (!empty($mailPiece['links']['redelivery'])) {
             $redelivery = $mailPiece['links']['redelivery'];
 
             $trackingLinks->setRedelivery((new Link())
