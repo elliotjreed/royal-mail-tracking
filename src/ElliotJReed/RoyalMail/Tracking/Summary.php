@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace ElliotJReed\RoyalMail\Tracking;
 
-use DateTimeImmutable;
 use ElliotJReed\RoyalMail\Tracking\Entity\ErrorResponse;
 use ElliotJReed\RoyalMail\Tracking\Entity\InternationalPostalProvider;
 use ElliotJReed\RoyalMail\Tracking\Entity\Link;
@@ -161,7 +160,7 @@ class Summary extends Track
             ->setSummaryLine($mailPiece['summary']['summaryLine'] ?? null);
 
         try {
-            $trackingSummary->setLastEventDateTime(new DateTimeImmutable($mailPiece['summary']['lastEventDateTime']));
+            $trackingSummary->setLastEventDateTime(new \DateTimeImmutable($mailPiece['summary']['lastEventDateTime']));
         } catch (Exception) {
         }
 

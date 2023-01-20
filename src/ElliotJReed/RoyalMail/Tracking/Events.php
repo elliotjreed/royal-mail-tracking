@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace ElliotJReed\RoyalMail\Tracking;
 
-use DateTimeImmutable;
 use ElliotJReed\RoyalMail\Tracking\Entity\Event\EstimatedDelivery;
 use ElliotJReed\RoyalMail\Tracking\Entity\Event\Event;
 use ElliotJReed\RoyalMail\Tracking\Entity\Event\Links;
@@ -166,7 +165,7 @@ class Events extends Track
             ->setSummaryLine($mailPiece['summary']['summaryLine'] ?? null);
 
         try {
-            $trackingSummary->setLastEventDateTime(new DateTimeImmutable($mailPiece['summary']['lastEventDateTime']));
+            $trackingSummary->setLastEventDateTime(new \DateTimeImmutable($mailPiece['summary']['lastEventDateTime']));
         } catch (Exception) {
         }
 
@@ -189,7 +188,7 @@ class Events extends Track
             ->setImageId($signatureArray['imageId'] ?? null);
 
         try {
-            $signature->setSignatureDateTime(new DateTimeImmutable($signatureArray['signatureDateTime']));
+            $signature->setSignatureDateTime(new \DateTimeImmutable($signatureArray['signatureDateTime']));
         } catch (Exception) {
         }
 
@@ -204,7 +203,7 @@ class Events extends Track
             ->setLocationName($eventArray['locationName'] ?? null);
 
         try {
-            $event->setEventDateTime(new DateTimeImmutable($eventArray['eventDateTime']));
+            $event->setEventDateTime(new \DateTimeImmutable($eventArray['eventDateTime']));
         } catch (Exception) {
         }
 
@@ -249,7 +248,7 @@ class Events extends Track
     {
         $estimatedDelivery = null;
         $dateString = $estimatedDeliveryArray['date'];
-        $date = DateTimeImmutable::createFromFormat('Y-m-d', $dateString);
+        $date = \DateTimeImmutable::createFromFormat('Y-m-d', $dateString);
 
         if ($date) {
             $estimatedDelivery = (new EstimatedDelivery())->setDate($date->setTime(0, 0));
@@ -258,8 +257,8 @@ class Events extends Track
 
             try {
                 $estimatedDelivery
-                    ->setStartOfEstimatedWindow(new DateTimeImmutable($startOfEstimatedWindow))
-                    ->setEndOfEstimatedWindow(new DateTimeImmutable($endOfEstimatedWindow));
+                    ->setStartOfEstimatedWindow(new \DateTimeImmutable($startOfEstimatedWindow))
+                    ->setEndOfEstimatedWindow(new \DateTimeImmutable($endOfEstimatedWindow));
             } catch (Exception) {
             }
         }

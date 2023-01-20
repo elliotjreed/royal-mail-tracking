@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace ElliotJReed\RoyalMail\Tracking\Entity\Summary;
 
-use DateTimeImmutable;
 use ElliotJReed\RoyalMail\Tracking\Entity\InternationalPostalProvider;
 
 final class Summary
@@ -21,7 +20,7 @@ final class Summary
     private ?string $originCountryName = null;
     private ?string $lastEventCode = null;
     private ?string $lastEventName = null;
-    private ?DateTimeImmutable $lastEventDateTime = null;
+    private ?\DateTimeImmutable $lastEventDateTime = null;
     private ?string $lastEventLocationName = null;
     private ?string $statusDescription = null;
     private ?string $statusCategory = null;
@@ -270,9 +269,9 @@ final class Summary
     }
 
     /**
-     * @return DateTimeImmutable|null date and time associated with the latest mail piece event
+     * @return \DateTimeImmutable|null date and time associated with the latest mail piece event
      */
-    public function getLastEventDateTime(): ?DateTimeImmutable
+    public function getLastEventDateTime(): ?\DateTimeImmutable
     {
         return $this->lastEventDateTime;
     }
@@ -282,7 +281,7 @@ final class Summary
      *
      * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary
      */
-    public function setLastEventDateTime(?DateTimeImmutable $lastEventDateTime): self
+    public function setLastEventDateTime(?\DateTimeImmutable $lastEventDateTime): self
     {
         $this->lastEventDateTime = $lastEventDateTime;
 

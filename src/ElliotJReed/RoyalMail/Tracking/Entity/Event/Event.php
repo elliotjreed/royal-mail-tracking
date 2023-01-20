@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace ElliotJReed\RoyalMail\Tracking\Entity\Event;
 
-use DateTimeImmutable;
-
 final class Event
 {
     private ?string $eventCode = null;
     private ?string $eventName = null;
-    private DateTimeImmutable $eventDateTime;
+    private \DateTimeImmutable $eventDateTime;
     private ?string $locationName = null;
 
     /**
@@ -56,7 +54,7 @@ final class Event
     /**
      * @return \DateTimeImmutable date and time of the event
      */
-    public function getEventDateTime(): DateTimeImmutable
+    public function getEventDateTime(): \DateTimeImmutable
     {
         return $this->eventDateTime;
     }
@@ -66,7 +64,7 @@ final class Event
      *
      * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\Event
      */
-    public function setEventDateTime(DateTimeImmutable $eventDateTime): self
+    public function setEventDateTime(\DateTimeImmutable $eventDateTime): self
     {
         $this->eventDateTime = $eventDateTime;
 

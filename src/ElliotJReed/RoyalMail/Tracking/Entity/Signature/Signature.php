@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace ElliotJReed\RoyalMail\Tracking\Entity\Signature;
 
-use DateTimeImmutable;
-
 final class Signature
 {
     private ?string $uniqueItemId = null;
     private ?string $oneDBarcode = null;
     private ?string $recipientName = null;
-    private ?DateTimeImmutable $signatureDateTime = null;
+    private ?\DateTimeImmutable $signatureDateTime = null;
     private string $imageFormat = '';
     private ?string $imageId = null;
     private ?int $height = null;
@@ -81,7 +79,7 @@ final class Signature
     /**
      * @return \DateTimeImmutable|null date and time the signature was captured
      */
-    public function getSignatureDateTime(): ?DateTimeImmutable
+    public function getSignatureDateTime(): ?\DateTimeImmutable
     {
         return $this->signatureDateTime;
     }
@@ -91,7 +89,7 @@ final class Signature
      *
      * @return \ElliotJReed\RoyalMail\Tracking\Entity\Signature\Signature
      */
-    public function setSignatureDateTime(?DateTimeImmutable $signatureDateTime): self
+    public function setSignatureDateTime(?\DateTimeImmutable $signatureDateTime): self
     {
         $this->signatureDateTime = $signatureDateTime;
 

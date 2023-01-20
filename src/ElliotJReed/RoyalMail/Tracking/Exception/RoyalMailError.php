@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace ElliotJReed\RoyalMail\Tracking\Exception;
 
 use ElliotJReed\RoyalMail\Tracking\Entity\Response;
-use Exception;
-use Throwable;
 
-abstract class RoyalMailError extends Exception
+abstract class RoyalMailError extends \Exception
 {
     protected ?Response $response = null;
 
-    public function __construct(string $message = '', int $code = 0, ?Throwable $previous = null)
+    public function __construct(string $message = '', int $code = 0, ?\Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }

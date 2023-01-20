@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\ElliotJReed\RoyalMail\Tracking;
 
-use DateTimeImmutable;
 use ElliotJReed\RoyalMail\Tracking\Events;
 use ElliotJReed\RoyalMail\Tracking\Exception\BadRequest;
 use ElliotJReed\RoyalMail\Tracking\Exception\ClientIdNotRegistered;
@@ -85,7 +84,7 @@ final class EventsTest extends TestCase
         $this->assertSame('United Kingdom of Great Britain and Northern Ireland', $summary->getOriginCountryName());
         $this->assertSame('EVNMI', $summary->getLastEventCode());
         $this->assertSame('Forwarded - Mis-sort', $summary->getLastEventName());
-        $this->assertEquals(new DateTimeImmutable('2016-10-20T10:04:00+01:00'), $summary->getLastEventDateTime());
+        $this->assertEquals(new \DateTimeImmutable('2016-10-20T10:04:00+01:00'), $summary->getLastEventDateTime());
         $this->assertSame('Stafford DO', $summary->getLastEventLocationName());
         $this->assertSame('It is being redirected', $summary->getStatusDescription());
         $this->assertSame('IN TRANSIT', $summary->getStatusCategory());
@@ -102,24 +101,24 @@ final class EventsTest extends TestCase
 
         $signature = $mailPieces->getSignature();
         $this->assertSame('Elliot', $signature->getRecipientName());
-        $this->assertEquals(new DateTimeImmutable('2016-10-20T10:04:00+01:00'), $signature->getSignatureDateTime());
+        $this->assertEquals(new \DateTimeImmutable('2016-10-20T10:04:00+01:00'), $signature->getSignatureDateTime());
         $this->assertSame('001234', $signature->getImageId());
 
         $estimatedDelivery = $mailPieces->getEstimatedDelivery();
-        $this->assertEquals(new DateTimeImmutable('2017-02-20T00:00:00+00:00'), $estimatedDelivery->getDate());
+        $this->assertEquals(new \DateTimeImmutable('2017-02-20T00:00:00+00:00'), $estimatedDelivery->getDate());
         $this->assertEquals(
-            new DateTimeImmutable('2017-02-20T08:00:00+01:00'),
+            new \DateTimeImmutable('2017-02-20T08:00:00+01:00'),
             $estimatedDelivery->getStartOfEstimatedWindow()
         );
         $this->assertEquals(
-            new DateTimeImmutable('2017-02-20T11:00:00+01:00'),
+            new \DateTimeImmutable('2017-02-20T11:00:00+01:00'),
             $estimatedDelivery->getEndOfEstimatedWindow()
         );
 
         $event = $mailPieces->getEvents()[0];
         $this->assertSame('EVNMI', $event->getEventCode());
         $this->assertSame('Forwarded - Mis-sort', $event->getEventName());
-        $this->assertEquals(new DateTimeImmutable('2016-10-20T10:04:00+01:00'), $event->getEventDateTime());
+        $this->assertEquals(new \DateTimeImmutable('2016-10-20T10:04:00+01:00'), $event->getEventDateTime());
         $this->assertSame('Stafford DO', $event->getLocationName());
 
         $linkSummary = $mailPieces->getLinks()->getSummary();
@@ -186,7 +185,7 @@ final class EventsTest extends TestCase
         $this->assertNull($signature->getSignatureDateTime());
 
         $estimatedDelivery = $mailPieces->getEstimatedDelivery();
-        $this->assertEquals(new DateTimeImmutable('2021-01-01T00:00:00.000000+0000'), $estimatedDelivery->getDate());
+        $this->assertEquals(new \DateTimeImmutable('2021-01-01T00:00:00.000000+0000'), $estimatedDelivery->getDate());
         $this->assertNull($estimatedDelivery->getStartOfEstimatedWindow());
         $this->assertNull($estimatedDelivery->getEndOfEstimatedWindow());
     }

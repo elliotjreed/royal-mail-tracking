@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace ElliotJReed\RoyalMail\Tracking;
 
-use DateTimeImmutable;
 use ElliotJReed\RoyalMail\Tracking\Entity\Link;
 use ElliotJReed\RoyalMail\Tracking\Entity\Signature\Links;
 use ElliotJReed\RoyalMail\Tracking\Entity\Signature\MailPieces;
@@ -138,7 +137,7 @@ class Signature extends Track
             ->setOneDBarcode($signatureArray['oneDBarcode'] ?? null);
 
         try {
-            $signature->setSignatureDateTime(new DateTimeImmutable($signatureArray['signatureDateTime']));
+            $signature->setSignatureDateTime(new \DateTimeImmutable($signatureArray['signatureDateTime']));
         } catch (Exception) {
         }
 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\ElliotJReed\RoyalMail\Tracking;
 
-use DateTimeImmutable;
 use ElliotJReed\RoyalMail\Tracking\Exception\BadRequest;
 use ElliotJReed\RoyalMail\Tracking\Exception\ClientIdNotRegistered;
 use ElliotJReed\RoyalMail\Tracking\Exception\DeliveryUpdateNotAvailable;
@@ -68,7 +67,7 @@ final class SignatureTest extends TestCase
 
         $signature = $response->getSignature();
         $this->assertSame('Elliot', $signature->getRecipientName());
-        $this->assertEquals(new DateTimeImmutable('2017-03-30T16:15:00+01:00'), $signature->getSignatureDateTime());
+        $this->assertEquals(new \DateTimeImmutable('2017-03-30T16:15:00+01:00'), $signature->getSignatureDateTime());
         $this->assertSame('001234', $signature->getImageId());
         $this->assertSame('FQ087430672GB', $signature->getOneDBarcode());
         $this->assertSame(530, $signature->getHeight());
