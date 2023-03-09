@@ -2,15 +2,13 @@
 
 # Royal Mail Tracking for PHP
 
-Note: this is an initial release of this package. It has been tested in the "real world", but there could be some issues.
-
 Please raise an issue in the GitHub repository if you are able, if not please feel free to [contact me](https://www.elliotjreed.com/contact).
 
 Pull requests for bug fixes or potential changes are welcome!
 
 ## Usage
 
-PHP 8.0 or above is required.
+PHP 8.1 or above is required.
 
 To install the package via [Composer](https://getcomposer.org/download/):
 
