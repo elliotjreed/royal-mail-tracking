@@ -88,7 +88,7 @@ class Events extends Track
         /*
          * httpCode will only be populated in the event of an error condition.
          */
-        if (isset($decoded['httpCode'])) {
+        if (isset($decoded['httpCode']) || !empty($decoded['errors'])) {
             $this->handleErrors($this->response, $decoded);
         }
 

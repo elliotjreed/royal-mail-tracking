@@ -62,7 +62,9 @@ class Summary extends Track
      */
     public function setTrackingNumbers(array $trackingNumbers): self
     {
-        $sanitisedTrackingNumbers = \array_map('self::sanitiseTrackingId', $trackingNumbers);
+        $callback = fn (string $trackingId): string => \preg_replace('/[^[:alnum:]]/u', '', $trackingId);
+
+        $sanitisedTrackingNumbers = \array_map($callback, $trackingNumbers);
         $apiResponse = $this->request(
             'https://api.royalmail.net/mailpieces/v2/summary?mailPieceId=' . \implode(',', $sanitisedTrackingNumbers)
         );
