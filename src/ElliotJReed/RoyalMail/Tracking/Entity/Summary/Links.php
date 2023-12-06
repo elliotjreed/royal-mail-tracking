@@ -20,8 +20,6 @@ final class Links
 
     /**
      * @param \ElliotJReed\RoyalMail\Tracking\Entity\Link|null $events container for events link information
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Links
      */
     public function setEvents(?Link $events): self
     {

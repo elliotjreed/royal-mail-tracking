@@ -20,8 +20,6 @@ final class InternationalPostalProvider
 
     /**
      * @param string $url URL link to website of delivery provider for international parcels
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\InternationalPostalProvider
      */
     public function setUrl(string $url): self
     {
@@ -40,8 +38,6 @@ final class InternationalPostalProvider
 
     /**
      * @param string $title name of the international postal organisation
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\InternationalPostalProvider
      */
     public function setTitle(string $title): self
     {
@@ -60,8 +56,6 @@ final class InternationalPostalProvider
 
     /**
      * @param string $description description of the international postal organisation
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\InternationalPostalProvider
      */
     public function setDescription(string $description): self
     {

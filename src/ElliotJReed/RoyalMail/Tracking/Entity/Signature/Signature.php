@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace ElliotJReed\RoyalMail\Tracking\Entity\Signature;
 
+use DateTimeImmutable;
+
 final class Signature
 {
     private ?string $uniqueItemId = null;
     private ?string $oneDBarcode = null;
     private ?string $recipientName = null;
-    private ?\DateTimeImmutable $signatureDateTime = null;
+    private ?DateTimeImmutable $signatureDateTime = null;
     private string $imageFormat = '';
     private ?string $imageId = null;
     private ?int $height = null;
@@ -26,8 +28,6 @@ final class Signature
 
     /**
      * @param string|null $uniqueItemId 2D barcode for the mail piece
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Signature\Signature
      */
     public function setUniqueItemId(?string $uniqueItemId): self
     {
@@ -46,8 +46,6 @@ final class Signature
 
     /**
      * @param string|null $oneDBarcode 1D barcode for the mail piece
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Signature\Signature
      */
     public function setOneDBarcode(?string $oneDBarcode): self
     {
@@ -66,8 +64,6 @@ final class Signature
 
     /**
      * @param string|null $recipientName name of the person who provided the signature
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Signature\Signature
      */
     public function setRecipientName(?string $recipientName): self
     {
@@ -77,19 +73,17 @@ final class Signature
     }
 
     /**
-     * @return \DateTimeImmutable|null date and time the signature was captured
+     * @return DateTimeImmutable|null date and time the signature was captured
      */
-    public function getSignatureDateTime(): ?\DateTimeImmutable
+    public function getSignatureDateTime(): ?DateTimeImmutable
     {
         return $this->signatureDateTime;
     }
 
     /**
-     * @param \DateTimeImmutable|null $signatureDateTime date and time the signature was captured
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Signature\Signature
+     * @param DateTimeImmutable|null $signatureDateTime date and time the signature was captured
      */
-    public function setSignatureDateTime(?\DateTimeImmutable $signatureDateTime): self
+    public function setSignatureDateTime(?DateTimeImmutable $signatureDateTime): self
     {
         $this->signatureDateTime = $signatureDateTime;
 
@@ -106,8 +100,6 @@ final class Signature
 
     /**
      * @param string $imageFormat Media type of the signature image, i.e. image/svg+xml or image/png.
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Signature\Signature
      */
     public function setImageFormat(string $imageFormat): self
     {
@@ -126,8 +118,6 @@ final class Signature
 
     /**
      * @param string|null $imageId identifier associated with the signature image
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Signature\Signature
      */
     public function setImageId(?string $imageId): self
     {
@@ -146,8 +136,6 @@ final class Signature
 
     /**
      * @param int|null $height height of the signature image (in pixels)
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Signature\Signature
      */
     public function setHeight(?int $height): self
     {
@@ -166,8 +154,6 @@ final class Signature
 
     /**
      * @param int|null $width width of the signature image (in pixels)
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Signature\Signature
      */
     public function setWidth(?int $width): self
     {
@@ -186,8 +172,6 @@ final class Signature
 
     /**
      * @param string|null $image SVG image or base64 encoded PNG image
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Signature\Signature
      */
     public function setImage(?string $image): self
     {

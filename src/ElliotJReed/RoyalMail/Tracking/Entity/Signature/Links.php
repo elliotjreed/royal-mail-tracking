@@ -21,8 +21,6 @@ final class Links
 
     /**
      * @param \ElliotJReed\RoyalMail\Tracking\Entity\Link|null $summary summary link information
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Signature\Links
      */
     public function setSummary(?Link $summary): self
     {
@@ -41,8 +39,6 @@ final class Links
 
     /**
      * @param \ElliotJReed\RoyalMail\Tracking\Entity\Link|null $events container for events link information
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Signature\Links
      */
     public function setEvents(?Link $events): self
     {

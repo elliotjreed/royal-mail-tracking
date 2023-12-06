@@ -25,8 +25,6 @@ final class MailPieces
 
     /**
      * @param string|null $mailPieceId 1D or 2D barcode provided in the API request
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\MailPieces
      */
     public function setMailPieceId(?string $mailPieceId): self
     {
@@ -45,8 +43,6 @@ final class MailPieces
 
     /**
      * @param string|null $carrierShortName short name of the carrier
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\MailPieces
      */
     public function setCarrierShortName(?string $carrierShortName): self
     {
@@ -65,8 +61,6 @@ final class MailPieces
 
     /**
      * @param string|null $carrierFullName full name of the carrier
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\MailPieces
      */
     public function setCarrierFullName(?string $carrierFullName): self
     {
@@ -85,8 +79,6 @@ final class MailPieces
 
     /**
      * @param \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary|null $summary object containing summary data
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\MailPieces
      */
     public function setSummary(?Summary $summary): self
     {
@@ -105,8 +97,6 @@ final class MailPieces
 
     /**
      * @param \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Links|null $links object containing API links
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\MailPieces
      */
     public function setLinks(?Links $links): self
     {
@@ -127,8 +117,6 @@ final class MailPieces
     /**
      * @param \ElliotJReed\RoyalMail\Tracking\Entity\ErrorResponse|null $error container for mail piece related error
      *                                                                         information
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\MailPieces
      */
     public function setError(?ErrorResponse $error): self
     {

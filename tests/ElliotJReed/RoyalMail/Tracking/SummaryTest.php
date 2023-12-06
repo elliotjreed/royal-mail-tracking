@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\ElliotJReed\RoyalMail\Tracking;
 
+use DateTimeImmutable;
 use ElliotJReed\RoyalMail\Tracking\Exception\BadRequest;
 use ElliotJReed\RoyalMail\Tracking\Exception\ClientIdNotRegistered;
 use ElliotJReed\RoyalMail\Tracking\Exception\InternalServerError;
@@ -75,7 +76,7 @@ final class SummaryTest extends TestCase
         $this->assertSame('United Kingdom of Great Britain and Northern Ireland', $summary->getOriginCountryName());
         $this->assertSame('EVNMI', $summary->getLastEventCode());
         $this->assertSame('Forwarded - Mis-sort', $summary->getLastEventName());
-        $this->assertEquals(new \DateTimeImmutable('2016-10-20T10:04:00+01:00'), $summary->getLastEventDateTime());
+        $this->assertEquals(new DateTimeImmutable('2016-10-20T10:04:00+01:00'), $summary->getLastEventDateTime());
         $this->assertSame('Stafford DO', $summary->getLastEventLocationName());
         $this->assertSame('It is being redirected', $summary->getStatusDescription());
         $this->assertSame('IN TRANSIT', $summary->getStatusCategory());

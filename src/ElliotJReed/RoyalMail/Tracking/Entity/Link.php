@@ -20,8 +20,6 @@ final class Link
 
     /**
      * @param string|null $href relative URL link for summary information
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Link
      */
     public function setHref(?string $href): self
     {
@@ -40,8 +38,6 @@ final class Link
 
     /**
      * @param string|null $title title of the link
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Link
      */
     public function setTitle(?string $title): self
     {
@@ -60,8 +56,6 @@ final class Link
 
     /**
      * @param string|null $description description of the link
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Link
      */
     public function setDescription(?string $description): self
     {

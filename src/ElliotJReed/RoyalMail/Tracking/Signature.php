@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ElliotJReed\RoyalMail\Tracking;
 
+use DateTimeImmutable;
 use ElliotJReed\RoyalMail\Tracking\Entity\Link;
 use ElliotJReed\RoyalMail\Tracking\Entity\Signature\Links;
 use ElliotJReed\RoyalMail\Tracking\Entity\Signature\MailPieces;
@@ -51,15 +52,15 @@ class Signature extends Track
      *                                                                           exceptions can be "turned off" by
      *                                                                           setting $throwExceptionOnTechnicalError
      *                                                                           to false in the constructor.
-     * @throws \ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailTrackingError Thrown when a business/tracking error
-     *                                                                          occurs (eg. invalid tracking number).
-     *                                                                          RoyalMailTrackingError exceptions can
-     *                                                                          be "turned off" by setting
-     *                                                                          $throwExceptionOnTrackingError to false
-     *                                                                          in the constructor.
-     * @throws \ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailResponseError Thrown in the event of an API server
-     *                                                                          outage or critical error
-     *                                                                          (eg. DNS failure).
+     * @throws \ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailTrackingError  Thrown when a business/tracking error
+     *                                                                           occurs (eg. invalid tracking number).
+     *                                                                           RoyalMailTrackingError exceptions can
+     *                                                                           be "turned off" by setting
+     *                                                                           $throwExceptionOnTrackingError to false
+     *                                                                           in the constructor.
+     * @throws \ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailResponseError  Thrown in the event of an API server
+     *                                                                           outage or critical error
+     *                                                                           (eg. DNS failure).
      */
     public function setTrackingNumber(string $trackingNumber): self
     {
@@ -137,7 +138,7 @@ class Signature extends Track
             ->setOneDBarcode($signatureArray['oneDBarcode'] ?? null);
 
         try {
-            $signature->setSignatureDateTime(new \DateTimeImmutable($signatureArray['signatureDateTime']));
+            $signature->setSignatureDateTime(new DateTimeImmutable($signatureArray['signatureDateTime']));
         } catch (Exception) {
         }
 

@@ -21,8 +21,6 @@ final class ErrorResponse
 
     /**
      * @param string|null $errorCode code associated with the error condition
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\ErrorResponse
      */
     public function setErrorCode(?string $errorCode): self
     {
@@ -41,8 +39,6 @@ final class ErrorResponse
 
     /**
      * @param string|null $errorDescription description of the error condition
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\ErrorResponse
      */
     public function setErrorDescription(?string $errorDescription): self
     {
@@ -61,8 +57,6 @@ final class ErrorResponse
 
     /**
      * @param string|null $errorCause cause of the error (if known)
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\ErrorResponse
      */
     public function setErrorCause(?string $errorCause): self
     {
@@ -81,8 +75,6 @@ final class ErrorResponse
 
     /**
      * @param string|null $errorResolution description of the resolution and action required to correct the error
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\ErrorResponse
      */
     public function setErrorResolution(?string $errorResolution): self
     {

@@ -25,8 +25,6 @@ final class Response extends \ElliotJReed\RoyalMail\Tracking\Entity\Response
      *                                                                                 mail item. This will only be
      *                                                                                 provided in the event that no
      *                                                                                 error information is returned.
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\Response
      */
     public function setMailPieces(?MailPieces $mailPieces): self
     {

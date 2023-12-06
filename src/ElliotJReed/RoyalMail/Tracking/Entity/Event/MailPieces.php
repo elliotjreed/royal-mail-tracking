@@ -27,8 +27,6 @@ final class MailPieces
 
     /**
      * @param string $mailPieceId 1D or 2D barcode provided in the API request
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\MailPieces
      */
     public function setMailPieceId(string $mailPieceId): self
     {
@@ -47,8 +45,6 @@ final class MailPieces
 
     /**
      * @param string $carrierShortName short name of the carrier
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\MailPieces
      */
     public function setCarrierShortName(string $carrierShortName): self
     {
@@ -67,8 +63,6 @@ final class MailPieces
 
     /**
      * @param string $carrierFullName full name of the carrier
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\MailPieces
      */
     public function setCarrierFullName(string $carrierFullName): self
     {
@@ -88,8 +82,6 @@ final class MailPieces
     /**
      * @param \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary|null $summary object containing mail piece summary
      *                                                                             data
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\MailPieces
      */
     public function setSummary(?Summary $summary): self
     {
@@ -109,8 +101,6 @@ final class MailPieces
     /**
      * @param \ElliotJReed\RoyalMail\Tracking\Entity\Event\Signature|null $signature object containing signature
      *                                                                               metadata
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\MailPieces
      */
     public function setSignature(?Signature $signature): self
     {
@@ -132,8 +122,6 @@ final class MailPieces
      * @param \ElliotJReed\RoyalMail\Tracking\Entity\Event\EstimatedDelivery|null $estimatedDelivery Object containing
      *                                                                                               the estimated
      *                                                                                               delivery data
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\MailPieces
      */
     public function setEstimatedDelivery(?EstimatedDelivery $estimatedDelivery): self
     {
@@ -152,8 +140,6 @@ final class MailPieces
 
     /**
      * @param \ElliotJReed\RoyalMail\Tracking\Entity\Event\Event $event mail piece event information
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\MailPieces
      */
     public function addEvent(Event $event): self
     {
@@ -172,8 +158,6 @@ final class MailPieces
 
     /**
      * @param \ElliotJReed\RoyalMail\Tracking\Entity\Event\Links|null $links object containing API links
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\MailPieces
      */
     public function setLinks(?Links $links): self
     {

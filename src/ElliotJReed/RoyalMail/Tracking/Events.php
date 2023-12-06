@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ElliotJReed\RoyalMail\Tracking;
 
+use DateTimeImmutable;
 use ElliotJReed\RoyalMail\Tracking\Entity\Event\EstimatedDelivery;
 use ElliotJReed\RoyalMail\Tracking\Entity\Event\Event;
 use ElliotJReed\RoyalMail\Tracking\Entity\Event\Links;
@@ -48,23 +49,21 @@ class Events extends Track
      *
      * @param string $trackingNumber The Royal Mail tracking ID (e.g. AB0123456789GB).
      *
-     * @return \ElliotJReed\RoyalMail\Tracking\Events
-     *
      * @throws \ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailTechnicalError Thrown when a technical error occurs
      *                                                                           (eg. invalid Client ID or Client
      *                                                                           secret). RoyalMailTechnicalError
      *                                                                           exceptions can be "turned off" by
      *                                                                           setting $throwExceptionOnTechnicalError
      *                                                                           to false in the constructor.
-     * @throws \ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailTrackingError Thrown when a business/tracking error
-     *                                                                          occurs (eg. invalid tracking number).
-     *                                                                          RoyalMailTrackingError exceptions can be
-     *                                                                          "turned off" by setting
-     *                                                                          $throwExceptionOnTrackingError to false
-     *                                                                          in the constructor.
-     * @throws \ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailResponseError Thrown in the event of an API server
-     *                                                                          outage or critical error
-     *                                                                          (eg. DNS failure).
+     * @throws \ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailTrackingError  Thrown when a business/tracking error
+     *                                                                           occurs (eg. invalid tracking number).
+     *                                                                           RoyalMailTrackingError exceptions can be
+     *                                                                           "turned off" by setting
+     *                                                                           $throwExceptionOnTrackingError to false
+     *                                                                           in the constructor.
+     * @throws \ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailResponseError  Thrown in the event of an API server
+     *                                                                           outage or critical error
+     *                                                                           (eg. DNS failure).
      */
     public function setTrackingNumber(string $trackingNumber): self
     {
@@ -165,7 +164,7 @@ class Events extends Track
             ->setSummaryLine($mailPiece['summary']['summaryLine'] ?? null);
 
         try {
-            $trackingSummary->setLastEventDateTime(new \DateTimeImmutable($mailPiece['summary']['lastEventDateTime']));
+            $trackingSummary->setLastEventDateTime(new DateTimeImmutable($mailPiece['summary']['lastEventDateTime']));
         } catch (Exception) {
         }
 
@@ -188,7 +187,7 @@ class Events extends Track
             ->setImageId($signatureArray['imageId'] ?? null);
 
         try {
-            $signature->setSignatureDateTime(new \DateTimeImmutable($signatureArray['signatureDateTime']));
+            $signature->setSignatureDateTime(new DateTimeImmutable($signatureArray['signatureDateTime']));
         } catch (Exception) {
         }
 
@@ -203,7 +202,7 @@ class Events extends Track
             ->setLocationName($eventArray['locationName'] ?? null);
 
         try {
-            $event->setEventDateTime(new \DateTimeImmutable($eventArray['eventDateTime']));
+            $event->setEventDateTime(new DateTimeImmutable($eventArray['eventDateTime']));
         } catch (Exception) {
         }
 
@@ -248,7 +247,7 @@ class Events extends Track
     {
         $estimatedDelivery = null;
         $dateString = $estimatedDeliveryArray['date'];
-        $date = \DateTimeImmutable::createFromFormat('Y-m-d', $dateString);
+        $date = DateTimeImmutable::createFromFormat('Y-m-d', $dateString);
 
         if ($date) {
             $estimatedDelivery = (new EstimatedDelivery())->setDate($date->setTime(0, 0));
@@ -257,8 +256,8 @@ class Events extends Track
 
             try {
                 $estimatedDelivery
-                    ->setStartOfEstimatedWindow(new \DateTimeImmutable($startOfEstimatedWindow))
-                    ->setEndOfEstimatedWindow(new \DateTimeImmutable($endOfEstimatedWindow));
+                    ->setStartOfEstimatedWindow(new DateTimeImmutable($startOfEstimatedWindow))
+                    ->setEndOfEstimatedWindow(new DateTimeImmutable($endOfEstimatedWindow));
             } catch (Exception) {
             }
         }

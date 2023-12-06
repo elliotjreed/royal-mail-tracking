@@ -22,8 +22,6 @@ final class Links
 
     /**
      * @param \ElliotJReed\RoyalMail\Tracking\Entity\Link|null $summary summary link information
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\Links
      */
     public function setSummary(?Link $summary): self
     {
@@ -42,8 +40,6 @@ final class Links
 
     /**
      * @param \ElliotJReed\RoyalMail\Tracking\Entity\Link|null $signature signature link information
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\Links
      */
     public function setSignature(?Link $signature): self
     {
@@ -62,8 +58,6 @@ final class Links
 
     /**
      * @param \ElliotJReed\RoyalMail\Tracking\Entity\Link|null $redelivery redelivery link information
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\Links
      */
     public function setRedelivery(?Link $redelivery): self
     {

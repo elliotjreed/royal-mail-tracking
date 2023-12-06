@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace ElliotJReed\RoyalMail\Tracking\Entity\Event;
 
+use DateTimeImmutable;
+
 final class Signature
 {
     private ?string $recipientName = null;
-    private ?\DateTimeImmutable $signatureDateTime = null;
+    private ?DateTimeImmutable $signatureDateTime = null;
     private ?string $imageId = null;
 
     /**
@@ -20,8 +22,6 @@ final class Signature
 
     /**
      * @param string|null $recipientName name of the person who provided the signature
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\Signature
      */
     public function setRecipientName(?string $recipientName): self
     {
@@ -31,19 +31,17 @@ final class Signature
     }
 
     /**
-     * @return \DateTimeImmutable|null date and time the signature was captured
+     * @return DateTimeImmutable|null date and time the signature was captured
      */
-    public function getSignatureDateTime(): ?\DateTimeImmutable
+    public function getSignatureDateTime(): ?DateTimeImmutable
     {
         return $this->signatureDateTime;
     }
 
     /**
-     * @param \DateTimeImmutable|null $signatureDateTime date and time the signature was captured
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\Signature
+     * @param DateTimeImmutable|null $signatureDateTime date and time the signature was captured
      */
-    public function setSignatureDateTime(?\DateTimeImmutable $signatureDateTime): self
+    public function setSignatureDateTime(?DateTimeImmutable $signatureDateTime): self
     {
         $this->signatureDateTime = $signatureDateTime;
 
@@ -60,8 +58,6 @@ final class Signature
 
     /**
      * @param string|null $imageId identifier associated with the signature image
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\Signature
      */
     public function setImageId(?string $imageId): self
     {

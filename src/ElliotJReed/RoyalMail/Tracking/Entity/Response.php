@@ -21,8 +21,6 @@ abstract class Response
 
     /**
      * @param int|null $httpCode HTTP error code. This will only be populated in the event of an error condition.
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Response
      */
     public function setHttpCode(?int $httpCode): self
     {
@@ -42,8 +40,6 @@ abstract class Response
     /**
      * @param string|null $httpMessage HTTP error code description.
      *                                 This will only be populated in the event of an error condition.
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Response
      */
     public function setHttpMessage(?string $httpMessage): self
     {
@@ -62,8 +58,6 @@ abstract class Response
 
     /**
      * @param string|null $moreInformation information relating to the error condition
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Response
      */
     public function setMoreInformation(?string $moreInformation): self
     {
@@ -82,8 +76,6 @@ abstract class Response
 
     /**
      * @param \ElliotJReed\RoyalMail\Tracking\Entity\ErrorResponse[] $errors array containing error information
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Response
      */
     public function setErrors(array $errors): self
     {

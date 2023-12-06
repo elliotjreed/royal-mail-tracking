@@ -8,7 +8,7 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 final class NullObjectNormaliser extends ObjectNormalizer
 {
-    public function normalize($object, string $format = null, array $context = []): array
+    public function normalize($object, ?string $format = null, array $context = []): array
     {
         $data = parent::normalize($object, $format, $context);
 

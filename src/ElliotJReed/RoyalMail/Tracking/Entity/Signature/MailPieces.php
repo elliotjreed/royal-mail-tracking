@@ -22,8 +22,6 @@ final class MailPieces
 
     /**
      * @param string|null $mailPieceId 1D or 2D barcode provided in the API request
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Signature\MailPieces
      */
     public function setMailPieceId(?string $mailPieceId): self
     {
@@ -42,8 +40,6 @@ final class MailPieces
 
     /**
      * @param string|null $carrierShortName short name of the carrier
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Signature\MailPieces
      */
     public function setCarrierShortName(?string $carrierShortName): self
     {
@@ -62,8 +58,6 @@ final class MailPieces
 
     /**
      * @param string|null $carrierFullName full name of the carrier
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Signature\MailPieces
      */
     public function setCarrierFullName(?string $carrierFullName): self
     {
@@ -83,8 +77,6 @@ final class MailPieces
     /**
      * @param \ElliotJReed\RoyalMail\Tracking\Entity\Signature\Signature|null $signature object containing signature
      *                                                                                   metadata
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Signature\MailPieces
      */
     public function setSignature(?Signature $signature): self
     {
@@ -103,8 +95,6 @@ final class MailPieces
 
     /**
      * @param \ElliotJReed\RoyalMail\Tracking\Entity\Signature\Links|null $links object containing API links
-     *
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Signature\MailPieces
      */
     public function setLinks(?Links $links): self
     {
