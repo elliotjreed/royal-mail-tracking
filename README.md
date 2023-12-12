@@ -6,6 +6,8 @@ Please raise an issue in the GitHub repository if you are able, if not please fe
 
 Pull requests for bug fixes or potential changes are welcome!
 
+Towards the bottom of this readme is a list of some of the event codes and their rough definition.
+
 ## Usage
 
 PHP 8.1 or above is required.
@@ -657,6 +659,47 @@ To use this library in Symfony, add the following to the `services.yaml` to have
       $royalMailClientSecret: '%env(string:ROYAL_MAIL_API_CLIENT_SECRET)%'
       $throwExceptionOnTechnicalError: true
 ```
+
+## Event codes
+
+ASRXS: As requested, if we can't deliver your item, we'll arrange a Redelivery on [X]. If no one's in again, we'll deliver your item to your chosen Safeplace. We'll let you know when it's delivered.
+EVAIP: The sender has advised they've despatched your item to us.
+EVBAH: We have your item at National Parcel Hub and it's on its way.
+EVDAC: We have your item at [X] MC and it's on its way.
+EVDAV: We have your item at [X] MC and it's on its way.
+EVGMI: Sorry, your item went to [X] DO in error, so we re-routed it immediately. More information will be available as it travels through our network.
+EVGPD: Your Item was received by [X] DO on [X] and is now due for delivery today.
+EVIAV: Your item has reached [X] MC and will now be sent to your local delivery office.
+EVIMC: Your item has reached [X] MC and will now be sent to your local delivery office.
+EVIPI: Sorry, your item went to [X] MC in error, so we re-routed it immediately. More information will be available as it travels through our network.
+EVKAA: Sorry, we were unable to deliver this item on [X] as the address was inaccessible. We will attempt to deliver your item again on the next working day.
+EVKAI: Sorry, we were unable to deliver this item on [X] as it was not possible to identify the delivery address. It will now be returned to the sender.
+EVKDN: We delivered your item to your neighbour [X] at [X] on [X].
+EVKGA: Sorry, we were unable to deliver this item on [X] as the recipient is no longer at that address. We're returning the item to the sender.
+EVKLC: Your item has been delivered to your nominated collection point on [X] and it's now ready for you to collect.
+EVKNA: Sorry, we tried to deliver your parcel on [X] but there didn't seem to be anyone in. Please choose an option below.
+EVKOP: Your item was delivered on [X].
+EVKRF: Sorry, we were unable to deliver this item on [X] as the recipient refused to accept it. It will now be returned to the sender.
+EVKSF: Your item was delivered to your Safeplace on [X].
+EVKSP: Your item was delivered on [X].
+EVKSU: Sorry, we've been unable to deliver your item to your nominated Safeplace today, [X]. Please choose an option below.
+EVNAA: Sorry, we were unable to deliver this item on [X] as the address was inaccessible. We will attempt to deliver your item again on the next working day.
+EVNAR: Due for Redelivery the Next Working Day.
+EVNDA: Sorry, we tried to deliver your parcel on [X] but there didn't seem to be anyone in. Please choose an option below.
+EVNDN: Sorry, we were unable to deliver this item on [X]. We'll attempt to deliver it on the next working day. See below for more information.
+EVNGA: Sorry, we were unable to deliver this item on [X] as the recipient is no longer at that address. We're returning the item to the sender.
+EVNKS: As requested, we're holding this item at [X] DO as part of our Keepsafe service. See below for more information.
+EVNMI: Sorry, your item went to [X] DO in error, so we re-routed it immediately. More information will be available as it travels through our network.
+EVNOC: Your item was collected from [X] DO on [X].
+EVNRF: Sorry, we were unable to deliver this item on [X] as the recipient refused to accept it. It will now be returned to the sender.
+EVNRT: We're holding this item at [X] DO. We've received a request not to deliver mail to the property your item is addressed to today. We'll attempt delivery as per the instructions we've received.
+EVPLC: Item [X] was collected by the customer from [X] Post Office [X] on [X].
+EVRTS: Your item was delivered back to the sender on [X].
+RFRXS: As requested, we'll arrange a Redelivery on [X]. If no one's home, we'll deliver your item to your chosen neighbour.
+RNRXS: As requested, we'll arrange a Redelivery on [X] to your chosen address.
+RORXS: As requested, we'll arrange a Redelivery for your item on [X].
+RPRXS: As requested, we'll arrange a Redelivery to your chosen Post Office.
+RSRXS: As requested, we'll arrange a Redelivery on [X]. If no one's home, we'll deliver your item to your chosen Safeplace. We'll let you know when it's delivered.
 
 ## Development
 
