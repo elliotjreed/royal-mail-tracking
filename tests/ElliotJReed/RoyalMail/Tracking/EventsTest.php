@@ -225,6 +225,9 @@ final class EventsTest extends TestCase
             ->setTrackingNumber('123456789GB');
 
         $this->assertJsonStringEqualsJsonString('{
+          "errors": [],
+          "httpCode": null,
+          "httpMessage": null,
           "mailPieces": {
             "carrierFullName": "Royal Mail Group Ltd",
             "carrierShortName": "RM",
@@ -290,7 +293,7 @@ final class EventsTest extends TestCase
               "uniqueItemId": "090367574000000FE1E1B"
             }
           },
-          "errors": []
+          "moreInformation": null
         }', $response->asJson());
     }
 

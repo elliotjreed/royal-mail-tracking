@@ -121,6 +121,9 @@ Would output the Royal Mail response as JSON:
 
 ```json
 {
+    "errors": [],
+    "httpCode": null,
+    "httpMessage": null,
     "mailPieces": {
         "carrierFullName": "Royal Mail Group Ltd",
         "carrierShortName": "RM",
@@ -157,7 +160,7 @@ Would output the Royal Mail response as JSON:
         "mailPieceId": "090367574000000FE1E1B",
         "signature": {
             "imageId": "001234",
-            "recipientName": "Simon",
+            "recipientName": "Elliot",
             "signatureDateTime": "2016-10-20T10:04:00+01:00"
         },
         "summary": {
@@ -186,7 +189,7 @@ Would output the Royal Mail response as JSON:
             "uniqueItemId": "090367574000000FE1E1B"
         }
     },
-    "errors": []
+    "moreInformation": null
 }
 ```
 
@@ -243,6 +246,9 @@ Would output the Royal Mail tracking response as JSON:
 
 ```json
 {
+    "errors": [],
+    "httpCode": null,
+    "httpMessage": null,
     "mailPieces": {
         "carrierFullName": "Royal Mail Group Ltd",
         "carrierShortName": "RM",
@@ -271,7 +277,7 @@ Would output the Royal Mail tracking response as JSON:
             "width": 660
         }
     },
-    "errors": []
+    "moreInformation": null
 }
 ```
 
@@ -352,6 +358,9 @@ Would output the Royal Mail response as JSON:
 
 ```json
 {
+    "errors": [],
+    "httpCode": null,
+    "httpMessage": null,
     "mailPieces": [
         {
             "carrierFullName": "Royal Mail Group Ltd",
@@ -397,7 +406,7 @@ Would output the Royal Mail response as JSON:
             }
         }
     ],
-    "errors": []
+    "moreInformation": null
 }
 ```
 
@@ -661,6 +670,10 @@ To use this library in Symfony, add the following to the `services.yaml` to have
 ```
 
 ## Event codes
+
+EVAIP: Sender despatching item.
+
+EVAIE: Sender despatching item.
 
 ASRXS: As requested, if we can't deliver your item, we'll arrange a Redelivery on [X]. If no one's in again, we'll deliver your item to your chosen Safeplace. We'll let you know when it's delivered.
 

@@ -143,6 +143,9 @@ final class SummaryTest extends TestCase
             ->setTrackingNumbers(['123456789GB']);
 
         $this->assertJsonStringEqualsJsonString('{
+          "errors": [],
+          "httpCode": null,
+          "httpMessage": null,
           "mailPieces": [
             {
               "carrierFullName": "Royal Mail Group Ltd",
@@ -188,7 +191,7 @@ final class SummaryTest extends TestCase
               }
             }
           ],
-          "errors": []
+          "moreInformation": null
         }', $response->asJson());
     }
 

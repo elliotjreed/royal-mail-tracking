@@ -23,7 +23,6 @@ use ElliotJReed\RoyalMail\Tracking\Exception\TrackingNotSupported;
 use ElliotJReed\RoyalMail\Tracking\Exception\TrackingUnavailable;
 use ElliotJReed\RoyalMail\Tracking\Exception\UpdateNotAvailable;
 use ElliotJReed\RoyalMail\Tracking\Exception\UriNotFound;
-use ElliotJReed\RoyalMail\Tracking\Normaliser\NullObjectNormaliser;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\RequestOptions;
@@ -31,6 +30,7 @@ use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
 abstract class Track
@@ -91,7 +91,7 @@ abstract class Track
     protected function serialiseToJson(array | object $object): string
     {
         return (new Serializer(
-            [new DateTimeNormalizer(), new NullObjectNormaliser()],
+            [new DateTimeNormalizer(), new ObjectNormalizer()],
             [new JsonEncoder()]
         ))->serialize($object, 'json');
     }

@@ -134,6 +134,9 @@ final class SignatureTest extends TestCase
             ->setTrackingNumber('123456789GB');
 
         $this->assertJsonStringEqualsJsonString('{
+          "errors": [],
+          "httpCode": null,
+          "httpMessage": null,
           "mailPieces": {
             "carrierFullName": "Royal Mail Group Ltd",
             "carrierShortName": "RM",
@@ -162,7 +165,7 @@ final class SignatureTest extends TestCase
               "width": 660
             }
           },
-          "errors": []
+          "moreInformation": null
         }', $response->asJson());
     }
 
