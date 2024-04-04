@@ -17,14 +17,14 @@ abstract class RoyalMailError extends Exception
         parent::__construct($message, $code, $previous);
     }
 
-    public function setResponse(Response $response): self
+    public function setResponse(?Response $response): self
     {
         $this->response = $response;
 
         return $this;
     }
 
-    public function getResponse(): Response
+    public function getResponse(): ?Response
     {
         return $this->response;
     }
