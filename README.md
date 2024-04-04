@@ -440,14 +440,14 @@ try {
     $tracking->setTrackingNumber('AB1234567890GB');
 } catch (\ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailTechnicalError $exception) {
     echo $exception->getMessage();
-    echo $exception->getResponse()->getHttpCode();
-    echo $exception->getResponse()->getHttpMessage();
-    echo $exception->getResponse()->getMoreInformation();
+    echo $exception->getResponse()?->getHttpCode();
+    echo $exception->getResponse()?->getHttpMessage();
+    echo $exception->getResponse()?->getMoreInformation();
 
-    echo $exception->getResponse()->getErrors()[0]->getErrorCode();
-    echo $exception->getResponse()->getErrors()[0]->getErrorDescription();
-    echo $exception->getResponse()->getErrors()[0]->getErrorCause();
-    echo $exception->getResponse()->getErrors()[0]->getErrorResolution();
+    echo $exception->getResponse()?->getErrors()[0]->getErrorCode();
+    echo $exception->getResponse()?->getErrors()[0]->getErrorDescription();
+    echo $exception->getResponse()?->getErrors()[0]->getErrorCause();
+    echo $exception->getResponse()?->getErrors()[0]->getErrorResolution();
 }
 ```
 
@@ -527,19 +527,19 @@ try {
     $tracking->setTrackingNumber('AB1234567890GB');
 } catch (\ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailTrackingError $exception) {
     echo $exception->getMessage();
-    echo $exception->getResponse()->getHttpCode();
-    echo $exception->getResponse()->getHttpMessage();
-    echo $exception->getResponse()->getMoreInformation();
+    echo $exception->getResponse()?->getHttpCode();
+    echo $exception->getResponse()?->getHttpMessage();
+    echo $exception->getResponse()?->getMoreInformation();
 
     echo $exception->getMessage();
-    echo $exception->getResponse()->getHttpCode();
-    echo $exception->getResponse()->getHttpMessage();
-    echo $exception->getResponse()->getMoreInformation();
+    echo $exception->getResponse()?->getHttpCode();
+    echo $exception->getResponse()?->getHttpMessage();
+    echo $exception->getResponse()?->getMoreInformation();
 
-    echo $exception->getResponse()->getErrors()[0]->getErrorCode();
-    echo $exception->getResponse()->getErrors()[0]->getErrorDescription();
-    echo $exception->getResponse()->getErrors()[0]->getErrorCause();
-    echo $exception->getResponse()->getErrors()[0]->getErrorResolution();
+    echo $exception->getResponse()?->getErrors()[0]->getErrorCode();
+    echo $exception->getResponse()?->getErrors()[0]->getErrorDescription();
+    echo $exception->getResponse()?->getErrors()[0]->getErrorCause();
+    echo $exception->getResponse()?->getErrors()[0]->getErrorResolution();
 }
 ```
 
