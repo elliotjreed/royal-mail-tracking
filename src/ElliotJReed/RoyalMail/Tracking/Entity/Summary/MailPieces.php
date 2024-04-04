@@ -70,7 +70,7 @@ final class MailPieces
     }
 
     /**
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary|null object containing summary data
+     * @return Summary|null object containing summary data
      */
     public function getSummary(): ?Summary
     {
@@ -78,7 +78,7 @@ final class MailPieces
     }
 
     /**
-     * @param \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Summary|null $summary object containing summary data
+     * @param Summary|null $summary object containing summary data
      */
     public function setSummary(?Summary $summary): self
     {
@@ -96,7 +96,7 @@ final class MailPieces
     }
 
     /**
-     * @param \ElliotJReed\RoyalMail\Tracking\Entity\Summary\Links|null $links object containing API links
+     * @param Links|null $links object containing API links
      */
     public function setLinks(?Links $links): self
     {
@@ -106,8 +106,8 @@ final class MailPieces
     }
 
     /**
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\ErrorResponse|null container for mail piece related error
-     *                                                                   information
+     * @return ErrorResponse|null container for mail piece related error
+     *                            information
      */
     public function getError(): ?ErrorResponse
     {
@@ -115,8 +115,8 @@ final class MailPieces
     }
 
     /**
-     * @param \ElliotJReed\RoyalMail\Tracking\Entity\ErrorResponse|null $error container for mail piece related error
-     *                                                                         information
+     * @param ErrorResponse|null $error container for mail piece related error
+     *                                  information
      */
     public function setError(?ErrorResponse $error): self
     {

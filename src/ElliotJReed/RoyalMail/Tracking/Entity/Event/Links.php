@@ -13,7 +13,7 @@ final class Links
     private ?Link $redelivery = null;
 
     /**
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Link|null summary link information
+     * @return Link|null summary link information
      */
     public function getSummary(): ?Link
     {
@@ -21,7 +21,7 @@ final class Links
     }
 
     /**
-     * @param \ElliotJReed\RoyalMail\Tracking\Entity\Link|null $summary summary link information
+     * @param Link|null $summary summary link information
      */
     public function setSummary(?Link $summary): self
     {
@@ -31,7 +31,7 @@ final class Links
     }
 
     /**
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Link|null signature link information
+     * @return Link|null signature link information
      */
     public function getSignature(): ?Link
     {
@@ -39,7 +39,7 @@ final class Links
     }
 
     /**
-     * @param \ElliotJReed\RoyalMail\Tracking\Entity\Link|null $signature signature link information
+     * @param Link|null $signature signature link information
      */
     public function setSignature(?Link $signature): self
     {
@@ -49,7 +49,7 @@ final class Links
     }
 
     /**
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Link|null redelivery link information
+     * @return Link|null redelivery link information
      */
     public function getRedelivery(): ?Link
     {
@@ -57,7 +57,7 @@ final class Links
     }
 
     /**
-     * @param \ElliotJReed\RoyalMail\Tracking\Entity\Link|null $redelivery redelivery link information
+     * @param Link|null $redelivery redelivery link information
      */
     public function setRedelivery(?Link $redelivery): self
     {

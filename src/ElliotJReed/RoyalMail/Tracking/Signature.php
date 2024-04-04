@@ -58,7 +58,7 @@ class Signature extends Track
      *                                                                           be "turned off" by setting
      *                                                                           $throwExceptionOnTrackingError to false
      *                                                                           in the constructor.
-     * @throws \ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailResponseError  Thrown in the event of an API server
+     * @throws RoyalMailResponseError                                            Thrown in the event of an API server
      *                                                                           outage or critical error
      *                                                                           (eg. DNS failure).
      */
@@ -92,7 +92,7 @@ class Signature extends Track
     }
 
     /**
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Signature\Response the Royal Mail response object
+     * @return Response the Royal Mail response object
      */
     public function getResponse(): Response
     {

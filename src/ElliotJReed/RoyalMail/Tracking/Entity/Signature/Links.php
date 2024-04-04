@@ -12,7 +12,7 @@ final class Links
     private ?Link $events = null;
 
     /**
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Link|null summary link information
+     * @return Link|null summary link information
      */
     public function getSummary(): ?Link
     {
@@ -20,7 +20,7 @@ final class Links
     }
 
     /**
-     * @param \ElliotJReed\RoyalMail\Tracking\Entity\Link|null $summary summary link information
+     * @param Link|null $summary summary link information
      */
     public function setSummary(?Link $summary): self
     {
@@ -30,7 +30,7 @@ final class Links
     }
 
     /**
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Link|null container for events link information
+     * @return Link|null container for events link information
      */
     public function getEvents(): ?Link
     {
@@ -38,7 +38,7 @@ final class Links
     }
 
     /**
-     * @param \ElliotJReed\RoyalMail\Tracking\Entity\Link|null $events container for events link information
+     * @param Link|null $events container for events link information
      */
     public function setEvents(?Link $events): self
     {

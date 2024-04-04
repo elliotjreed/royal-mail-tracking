@@ -11,7 +11,7 @@ final class Links
     private ?Link $events = null;
 
     /**
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Link|null container for events link information
+     * @return Link|null container for events link information
      */
     public function getEvents(): ?Link
     {
@@ -19,7 +19,7 @@ final class Links
     }
 
     /**
-     * @param \ElliotJReed\RoyalMail\Tracking\Entity\Link|null $events container for events link information
+     * @param Link|null $events container for events link information
      */
     public function setEvents(?Link $events): self
     {

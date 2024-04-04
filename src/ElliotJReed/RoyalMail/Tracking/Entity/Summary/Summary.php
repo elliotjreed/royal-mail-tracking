@@ -354,9 +354,9 @@ final class Summary
     }
 
     /**
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\InternationalPostalProvider|null object containing details of
-     *                                                                                 international postal
-     *                                                                                 organisation
+     * @return InternationalPostalProvider|null object containing details of
+     *                                          international postal
+     *                                          organisation
      */
     public function getInternationalPostalProvider(): ?InternationalPostalProvider
     {
@@ -364,8 +364,8 @@ final class Summary
     }
 
     /**
-     * @param \ElliotJReed\RoyalMail\Tracking\Entity\InternationalPostalProvider|null $internationalPostalProvider object containing details of
-     *                                                                                                             international postal organisation
+     * @param InternationalPostalProvider|null $internationalPostalProvider object containing details of
+     *                                                                      international postal organisation
      */
     public function setInternationalPostalProvider(?InternationalPostalProvider $internationalPostalProvider): self
     {

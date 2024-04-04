@@ -67,7 +67,7 @@ final class MailPieces
     }
 
     /**
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Signature\Signature|null object containing signature metadata
+     * @return Signature|null object containing signature metadata
      */
     public function getSignature(): ?Signature
     {
@@ -75,8 +75,8 @@ final class MailPieces
     }
 
     /**
-     * @param \ElliotJReed\RoyalMail\Tracking\Entity\Signature\Signature|null $signature object containing signature
-     *                                                                                   metadata
+     * @param Signature|null $signature object containing signature
+     *                                  metadata
      */
     public function setSignature(?Signature $signature): self
     {
@@ -94,7 +94,7 @@ final class MailPieces
     }
 
     /**
-     * @param \ElliotJReed\RoyalMail\Tracking\Entity\Signature\Links|null $links object containing API links
+     * @param Links|null $links object containing API links
      */
     public function setLinks(?Links $links): self
     {

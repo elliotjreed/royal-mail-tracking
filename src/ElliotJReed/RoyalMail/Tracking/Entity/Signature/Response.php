@@ -9,10 +9,10 @@ final class Response extends \ElliotJReed\RoyalMail\Tracking\Entity\Response
     private ?MailPieces $mailPieces = null;
 
     /**
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Signature\MailPieces|null Object containing tracking information
-     *                                                                          for the requested mail item. This will
-     *                                                                          only be provided in the event that no
-     *                                                                          error information is returned.
+     * @return MailPieces|null Object containing tracking information
+     *                         for the requested mail item. This will
+     *                         only be provided in the event that no
+     *                         error information is returned.
      */
     public function getMailPieces(): ?MailPieces
     {
@@ -20,12 +20,12 @@ final class Response extends \ElliotJReed\RoyalMail\Tracking\Entity\Response
     }
 
     /**
-     * @param \ElliotJReed\RoyalMail\Tracking\Entity\Signature\MailPieces|null $mailPieces Object containing tracking
-     *                                                                                     information for the requested
-     *                                                                                     mail item. This will only be
-     *                                                                                     provided in the event that
-     *                                                                                     no error information is
-     *                                                                                     returned.
+     * @param MailPieces|null $mailPieces Object containing tracking
+     *                                    information for the requested
+     *                                    mail item. This will only be
+     *                                    provided in the event that
+     *                                    no error information is
+     *                                    returned.
      */
     public function setMailPieces(?MailPieces $mailPieces): self
     {

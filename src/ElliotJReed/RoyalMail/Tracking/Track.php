@@ -36,14 +36,14 @@ use Symfony\Component\Serializer\Serializer;
 abstract class Track
 {
     /**
-     * @param \GuzzleHttp\ClientInterface $httpClient                     Guzzle Client
-     * @param string                      $clientId                       Royal Mail Client ID
-     * @param string                      $clientSecret                   Royal Mail Client Secret
-     * @param bool                        $throwExceptionOnTrackingError  If true exceptions will be thrown for Events and Signature operations
-     *                                                                    when a tracking error is encountered (eg. if the tracking number is
-     *                                                                    invalid).
-     * @param bool                        $throwExceptionOnTechnicalError If true exceptions will be thrown when a technical error is
-     *                                                                    encountered (eg. if the Client ID or Client Secret is incorrect).
+     * @param ClientInterface $httpClient                     Guzzle Client
+     * @param string          $clientId                       Royal Mail Client ID
+     * @param string          $clientSecret                   Royal Mail Client Secret
+     * @param bool            $throwExceptionOnTrackingError  If true exceptions will be thrown for Events and Signature operations
+     *                                                        when a tracking error is encountered (eg. if the tracking number is
+     *                                                        invalid).
+     * @param bool            $throwExceptionOnTechnicalError If true exceptions will be thrown when a technical error is
+     *                                                        encountered (eg. if the Client ID or Client Secret is incorrect).
      */
     public function __construct(
         private ClientInterface $httpClient,

@@ -61,7 +61,7 @@ class Events extends Track
      *                                                                           "turned off" by setting
      *                                                                           $throwExceptionOnTrackingError to false
      *                                                                           in the constructor.
-     * @throws \ElliotJReed\RoyalMail\Tracking\Exception\RoyalMailResponseError  Thrown in the event of an API server
+     * @throws RoyalMailResponseError                                            Thrown in the event of an API server
      *                                                                           outage or critical error
      *                                                                           (eg. DNS failure).
      */
@@ -95,7 +95,7 @@ class Events extends Track
     }
 
     /**
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\Response the Royal Mail response object
+     * @return Response the Royal Mail response object
      */
     public function getResponse(): Response
     {
