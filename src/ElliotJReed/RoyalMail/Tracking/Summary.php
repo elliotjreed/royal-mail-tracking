@@ -25,14 +25,16 @@ class Summary extends Track
         ClientInterface $httpClient,
         string $royalMailClientId,
         string $royalMailClientSecret,
-        bool $throwExceptionOnTechnicalError = true
+        bool $throwExceptionOnTechnicalError = true,
+        string $baseUrl = 'https://api.royalmail.net/mailpieces/v2'
     ) {
         parent::__construct(
             $httpClient,
             $royalMailClientId,
             $royalMailClientSecret,
             false,
-            $throwExceptionOnTechnicalError
+            $throwExceptionOnTechnicalError,
+            $baseUrl
         );
 
         $this->response = new Response();
@@ -67,7 +69,7 @@ class Summary extends Track
 
         $sanitisedTrackingNumbers = \array_map($callback, $trackingNumbers);
         $apiResponse = $this->request(
-            'https://api.royalmail.net/mailpieces/v2/summary?mailPieceId=' . \implode(',', $sanitisedTrackingNumbers)
+            $this->baseUrl . '/summary?mailPieceId=' . \implode(',', $sanitisedTrackingNumbers)
         );
 
         $statusCode = $apiResponse->getStatusCode();

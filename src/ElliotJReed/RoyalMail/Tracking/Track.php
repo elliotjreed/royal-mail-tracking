@@ -35,6 +35,8 @@ use Symfony\Component\Serializer\Serializer;
 
 abstract class Track
 {
+    protected string $baseUrl;
+
     /**
      * @param ClientInterface $httpClient                     Guzzle Client
      * @param string          $clientId                       Royal Mail Client ID
@@ -50,8 +52,10 @@ abstract class Track
         private string $clientId,
         private string $clientSecret,
         private bool $throwExceptionOnTrackingError = true,
-        private bool $throwExceptionOnTechnicalError = true
+        private bool $throwExceptionOnTechnicalError = true,
+        string $baseUrl = 'https://api.royalmail.net/mailpieces/v2'
     ) {
+        $this->baseUrl = $baseUrl;
     }
 
     protected function request(string $url): ResponseInterface

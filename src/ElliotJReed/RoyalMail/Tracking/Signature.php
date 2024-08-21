@@ -24,14 +24,16 @@ class Signature extends Track
         string $royalMailClientId,
         string $royalMailClientSecret,
         bool $throwExceptionOnTrackingError = true,
-        bool $throwExceptionOnTechnicalError = true
+        bool $throwExceptionOnTechnicalError = true,
+        string $baseUrl = 'https://api.royalmail.net/mailpieces/v2'
     ) {
         parent::__construct(
             $httpClient,
             $royalMailClientId,
             $royalMailClientSecret,
             $throwExceptionOnTrackingError,
-            $throwExceptionOnTechnicalError
+            $throwExceptionOnTechnicalError,
+            $baseUrl
         );
 
         $this->response = new Response();
@@ -65,7 +67,7 @@ class Signature extends Track
     public function setTrackingNumber(string $trackingNumber): self
     {
         $apiResponse = $this->request(
-            'https://api.royalmail.net/mailpieces/v2/' . $this->sanitiseTrackingId($trackingNumber) . '/signature'
+            $this->baseUrl . '/' . $this->sanitiseTrackingId($trackingNumber) . '/signature'
         );
 
         $statusCode = $apiResponse->getStatusCode();

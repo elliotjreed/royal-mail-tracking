@@ -28,6 +28,41 @@ Details for each are outlined below, with examples included.
 Information about error handling is provided below the `Events`, `Signature`, and `Summary` information
 (and is worth reading as `Summary` errors are handled differently to `Events` and `Summary` errors).
 
+### Instantiation / Setup
+
+```php
+$tracking = (new \ElliotJReed\RoyalMail\Tracking\Events(
+    new \GuzzleHttp\Client(),
+    'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+    '12345678901234567890123456789012345678901234567890',
+    true, // Optional, when true (default: true) exceptions will be thrown for tracking errors
+    true, // Optional, when true (default: true) exceptions will be thrown for technical (eg. 500 HTTP response) errors
+    'https://api.royalmail.net/mailpieces/v2' // Optional, when set the default API endpoint can be overridden (default: 'https://api.royalmail.net/mailpieces/v2')
+));
+```
+
+```php
+$signature = (new \ElliotJReed\RoyalMail\Tracking\Signature(
+    new \GuzzleHttp\Client(),
+    'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+    '12345678901234567890123456789012345678901234567890',
+    true, // Optional, when true (default: true) exceptions will be thrown for tracking errors
+    true, // Optional, when true (default: true) exceptions will be thrown for technical (eg. 500 HTTP response) errors
+    'https://api.royalmail.net/mailpieces/v2' // Optional, when set the default API endpoint can be overridden (default: 'https://api.royalmail.net/mailpieces/v2')
+));
+```
+
+```php
+$summary = (new \ElliotJReed\RoyalMail\Tracking\Summary(
+    new \GuzzleHttp\Client(),
+    'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+    '12345678901234567890123456789012345678901234567890',
+    true, // Optional, when true (default: true) exceptions will be thrown for tracking errors
+    true, // Optional, when true (default: true) exceptions will be thrown for technical (eg. 500 HTTP response) errors
+    'https://api.royalmail.net/mailpieces/v2' // Optional, when set the default API endpoint can be overridden (default: 'https://api.royalmail.net/mailpieces/v2')
+));
+```
+
 ### Events
 
 The behaviour of the events operation is to provide a history of tracks for a single mail item.

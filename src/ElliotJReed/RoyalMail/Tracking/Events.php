@@ -28,14 +28,16 @@ class Events extends Track
         string $royalMailClientId,
         string $royalMailClientSecret,
         bool $throwExceptionOnTrackingError = true,
-        bool $throwExceptionOnTechnicalError = true
+        bool $throwExceptionOnTechnicalError = true,
+        string $baseUrl = 'https://api.royalmail.net/mailpieces/v2'
     ) {
         parent::__construct(
             $httpClient,
             $royalMailClientId,
             $royalMailClientSecret,
             $throwExceptionOnTrackingError,
-            $throwExceptionOnTechnicalError
+            $throwExceptionOnTechnicalError,
+            $baseUrl
         );
 
         $this->response = new Response();
@@ -68,7 +70,7 @@ class Events extends Track
     public function setTrackingNumber(string $trackingNumber): self
     {
         $apiResponse = $this->request(
-            'https://api.royalmail.net/mailpieces/v2/' . $this->sanitiseTrackingId($trackingNumber) . '/events'
+            $this->baseUrl . '/' . $this->sanitiseTrackingId($trackingNumber) . '/events'
         );
 
         $statusCode = $apiResponse->getStatusCode();
