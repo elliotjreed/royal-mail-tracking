@@ -10,7 +10,7 @@ Towards the bottom of this readme is a list of some of the event codes and their
 
 ## Usage
 
-PHP 8.1 or above is required.
+PHP 8.2 or above is required. For PHP 8.1 use version 4.2.0.
 
 To install the package via [Composer](https://getcomposer.org/download/):
 
