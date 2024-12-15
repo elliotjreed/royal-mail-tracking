@@ -9,10 +9,10 @@ final class Response extends \ElliotJReed\RoyalMail\Tracking\Entity\Response
     private array $mailPieces = [];
 
     /**
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Summary\MailPieces[] Object containing tracking information for
-     *                                                                     the requested mail item. This will only be
-     *                                                                     provided in the event that no error
-     *                                                                     information is returned.
+     * @return MailPieces[] Object containing tracking information for
+     *                      the requested mail item. This will only be
+     *                      provided in the event that no error
+     *                      information is returned.
      */
     public function getMailPieces(): array
     {
@@ -20,11 +20,11 @@ final class Response extends \ElliotJReed\RoyalMail\Tracking\Entity\Response
     }
 
     /**
-     * @param \ElliotJReed\RoyalMail\Tracking\Entity\Summary\MailPieces[] $mailPieces Object containing tracking
-     *                                                                                information for the requested
-     *                                                                                mail item. This will only be
-     *                                                                                provided in the event that no
-     *                                                                                error information is returned.
+     * @param MailPieces[] $mailPieces Object containing tracking
+     *                                 information for the requested
+     *                                 mail item. This will only be
+     *                                 provided in the event that no
+     *                                 error information is returned.
      */
     public function setMailPieces(array $mailPieces): self
     {

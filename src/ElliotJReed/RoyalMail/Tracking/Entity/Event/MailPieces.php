@@ -119,9 +119,7 @@ final class MailPieces
     }
 
     /**
-     * @param EstimatedDelivery|null $estimatedDelivery Object containing
-     *                                                  the estimated
-     *                                                  delivery data
+     * @param EstimatedDelivery|null $estimatedDelivery Object containing the estimated delivery data
      */
     public function setEstimatedDelivery(?EstimatedDelivery $estimatedDelivery): self
     {
@@ -131,7 +129,7 @@ final class MailPieces
     }
 
     /**
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\Event\Event[] array containing mail piece event information
+     * @return Event[] array containing mail piece event information
      */
     public function getEvents(): array
     {

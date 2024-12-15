@@ -67,7 +67,7 @@ abstract class Response
     }
 
     /**
-     * @return \ElliotJReed\RoyalMail\Tracking\Entity\ErrorResponse[] array containing error information
+     * @return ErrorResponse[] array containing error information
      */
     public function getErrors(): array
     {
@@ -75,7 +75,7 @@ abstract class Response
     }
 
     /**
-     * @param \ElliotJReed\RoyalMail\Tracking\Entity\ErrorResponse[] $errors array containing error information
+     * @param ErrorResponse[] $errors array containing error information
      */
     public function setErrors(array $errors): self
     {
