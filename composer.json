@@ -27,15 +27,15 @@
     }
   },
   "require": {
-    "php": "^8.2",
+    "php": "^8.4",
     "ext-json": "*",
-    "guzzlehttp/guzzle": "^6.0|^7.0",
-    "symfony/property-access": "^6.0|^7.0",
-    "symfony/serializer": "^6.0|^7.0"
+    "guzzlehttp/guzzle": "^7.0",
+    "symfony/property-access": "^7.0|^8.0",
+    "symfony/serializer": "^7.0|^8.0"
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "*",
-    "phpunit/phpunit": "^11.5",
+    "phpunit/phpunit": "^12.5",
     "roave/security-advisories": "dev-master",
     "squizlabs/php_codesniffer": "*"
   },
