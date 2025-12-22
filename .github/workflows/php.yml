@@ -1,5 +1,5 @@
 name: PHP Tests
-on: [push, pull_request]
+on: [push]
 jobs:
   php:
     name: (PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }})
@@ -8,7 +8,7 @@ jobs:
       fail-fast: false
       matrix:
         operating-system: [ubuntu-latest]
-        php-versions: ['8.2', '8.3', '8.4']
+        php-versions: ['8.4', '8.5']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -24,7 +24,7 @@ jobs:
         run: composer install --no-interaction --classmap-authoritative --no-progress
 
       - name: Run PHP Code Sniffer and PHP CS Fixer (dry run)
-        run: PHP_CS_FIXER_IGNORE_ENV=1 composer run-script phpcs:ci
+        run: composer run-script phpcs:ci
 
       - name: Run unit tests
         run: composer run-script phpunit:ci
