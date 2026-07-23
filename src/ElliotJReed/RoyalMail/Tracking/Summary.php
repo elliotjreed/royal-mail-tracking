@@ -65,7 +65,7 @@ class Summary extends Track
      */
     public function setTrackingNumbers(array $trackingNumbers): self
     {
-        $callback = fn (string $trackingId): string => \preg_replace('/[^[:alnum:]]/u', '', $trackingId);
+        $callback = static fn (string $trackingId): string => \preg_replace('/[^[:alnum:]]/u', '', $trackingId);
 
         $sanitisedTrackingNumbers = \array_map($callback, $trackingNumbers);
         $apiResponse = $this->request(
