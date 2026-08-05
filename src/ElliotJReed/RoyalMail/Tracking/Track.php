@@ -24,6 +24,7 @@ use ElliotJReed\RoyalMail\Tracking\Exception\TrackingUnavailable;
 use ElliotJReed\RoyalMail\Tracking\Exception\UpdateNotAvailable;
 use ElliotJReed\RoyalMail\Tracking\Exception\UriNotFound;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\RequestOptions;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -76,11 +77,9 @@ abstract class Track
                     ]
                 ]
             );
+        } catch (BadResponseException $exception) {
+            return $exception->getResponse();
         } catch (RequestException $exception) {
-            if ($exception->hasResponse()) {
-                return $exception->getResponse();
-            }
-
             throw new RoyalMailResponseError($exception->getMessage());
         } catch (ClientExceptionInterface $exception) {
             throw new RoyalMailResponseError($exception->getMessage());

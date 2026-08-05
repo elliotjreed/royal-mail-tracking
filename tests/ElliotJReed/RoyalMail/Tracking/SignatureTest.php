@@ -24,6 +24,7 @@ use ElliotJReed\RoyalMail\Tracking\Exception\UpdateNotAvailable;
 use ElliotJReed\RoyalMail\Tracking\Exception\UriNotFound;
 use ElliotJReed\RoyalMail\Tracking\Signature;
 use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Handler\MockHandler;
@@ -215,7 +216,9 @@ final class SignatureTest extends TestCase
     public function testItThrowsExceptionWhenTransferExceptionThrownByGuzzle(): void
     {
         $mock = new MockHandler([
-            new TransferException('Transfer Exception')
+            ClientInterface::MAJOR_VERSION >= 8
+                ? new TransferException('Transfer Exception', new Request('GET', '/mailpieces/v2/123456789GB/events'))
+                : new TransferException('Transfer Exception')
         ]);
         $client = new Client(['handler' => HandlerStack::create($mock)]);
 
